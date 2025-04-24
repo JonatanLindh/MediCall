@@ -1,3 +1,5 @@
+// https://pub.dev/documentation/go_router/latest/topics/Type-safe%20routes-topic.html
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicall/counter/view/counter_page.dart';
