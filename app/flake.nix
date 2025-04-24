@@ -15,7 +15,7 @@
         };
 
         androidSdk = (pkgs.androidenv.composeAndroidPackages {
-          buildToolsVersions = [ "33.0.1" "28.0.3" ];
+          buildToolsVersions = [ "33.0.1" "28.0.3" "34.0.0" ];
           platformVersions = [ "33" "34" "35" ];
           abiVersions = [ "armeabi-v7a" "arm64-v8a" ];
         }).androidsdk;
