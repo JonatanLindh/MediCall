@@ -128,6 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
+import 'dashboard.dart';
 
 
 void main() {
@@ -146,7 +147,11 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      routes: {
+        '/': (context) => const HomeScreen(),  // homepage route
+        '/dashboard': (context) => DashboardPage(),  // Dashboard route
+      },
+      initialRoute: '/',  //  HomeScreen
     );
   }
 }

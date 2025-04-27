@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+bool _isLoading = false;  // 在 _LoginScreenState
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,13 +16,44 @@ class _LoginScreenState extends State<LoginScreen> {
   String _email = '';
   String _password = '';
 
-  void _submit() {
+  void _submit()  async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      debugPrint('Email: $_email');
-      debugPrint('Password: $_password');
+
+      setState(() {
+        _isLoading = true; //  loading
+      });
+
+      try {
+        final response = await http.post(
+          Uri.parse('http://10.0.2.2:8000/api/login'), // local Robyn backend port
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': _email, 'password': _password}),
+        );
+        print(response.statusCode);  // test
+
+        if (response.statusCode == 200) {
+          // login succeed Dashboard
+          Navigator.pushReplacementNamed(context, '/dashboard');
+        } else {
+          // login fail
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Invalid email or password')),
+          );
+        }
+      } catch (e) {
+        // internet err
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false; // stop loading
+        });
+      }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
