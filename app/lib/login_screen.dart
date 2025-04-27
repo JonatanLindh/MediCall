@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-bool _isLoading = false;  // 在 _LoginScreenState
+bool _isLoading = false;  //  _LoginScreenState
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -119,7 +119,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                ElevatedButton(
+                _isLoading
+                    ? const Center(child: CircularProgressIndicator())//loading condition
+                :ElevatedButton(
                   onPressed: _submit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
