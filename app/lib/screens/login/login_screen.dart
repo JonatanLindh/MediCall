@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-bool _isLoading = false; //  _LoginScreenState
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:medicall/app/routes.dart';
+import 'package:medicall/screens/login/bloc/login_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,147 +16,163 @@ class _LoginScreenState extends State<LoginScreen> {
   String _email = '';
   String _password = '';
 
-  Future<void> _submit() async {
+  void _submit(BuildContext context) {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      setState(() {
-        _isLoading = true; //  loading
-      });
-
-      try {
-        final response = await http.post(
-          Uri.parse(
-            'http://10.0.2.2:8000/api/login',
-          ), // local Robyn backend port
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'email': _email, 'password': _password}),
-        );
-        print(response.statusCode); // test
-
-        if (response.statusCode == 200) {
-          // login succeed Dashboard
-          Navigator.pushReplacementNamed(context, '/dashboard');
-        } else {
-          // login fail
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Invalid email or password')),
+      context.read<LoginBloc>().add(
+            LoginButtonPressed(email: _email, password: _password),
           );
-        }
-      } catch (e) {
-        // internet err
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      } finally {
-        setState(() {
-          _isLoading = false; // stop loading
-        });
-      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                const SizedBox(height: 40),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Sign In',
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 40),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    hintText: 'Enter your email',
-                    prefixIcon: Icon(Icons.email_outlined),
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) => (value == null || !value.contains('@'))
-                      ? 'Enter a valid email'
-                      : null,
-                  onSaved: (value) => _email = value!,
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Enter your password',
-                    prefixIcon: const Icon(Icons.lock_outline),
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
+    return BlocProvider(
+      create: (context) => LoginBloc(),
+      child: BlocListener<LoginBloc, LoginState>(
+        listener: (context, state) {
+          if (state is LoginSuccess) {
+            DashboardRoute().go(context);
+          } else if (state is LoginFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          }
+        },
+        child: Scaffold(
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    const SizedBox(height: 40),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Sign In',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      onPressed: () {
-                        setState(() => _obscurePassword = !_obscurePassword);
+                    ),
+                    const SizedBox(height: 40),
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        hintText: 'Enter your email',
+                        prefixIcon: Icon(Icons.email_outlined),
+                        border: OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) =>
+                          (value == null || !value.contains('@'))
+                              ? 'Enter a valid email'
+                              : null,
+                      onSaved: (value) => _email = value!,
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        hintText: 'Enter your password',
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            );
+                          },
+                        ),
+                      ),
+                      obscureText: _obscurePassword,
+                      validator: (value) => (value == null || value.length < 6)
+                          ? 'Minimum 6 characters'
+                          : null,
+                      onSaved: (value) => _password = value!,
+                    ),
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          'Forgot password?',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    BlocBuilder<LoginBloc, LoginState>(
+                      builder: (context, state) {
+                        if (state is LoginLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else {
+                          return SubmitButton(onSubmit: _submit);
+                        }
                       },
                     ),
-                  ),
-                  obscureText: _obscurePassword,
-                  validator: (value) => (value == null || value.length < 6)
-                      ? 'Minimum 6 characters'
-                      : null,
-                  onSaved: (value) => _password = value!,
-                ),
-                const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {},
-                    child: const Text(
-                      'Forgot password?',
-                      style: TextStyle(color: Colors.blue),
+                    const SizedBox(height: 16),
+                    const Text(
+                      "Don't have an account? ",
+                      style: TextStyle(fontSize: 14),
                     ),
-                  ),
+                    const SignUpButton(),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                if (_isLoading)
-                  const Center(child: CircularProgressIndicator())
-                else
-                  ElevatedButton(
-                    onPressed: _submit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 80,
-                        vertical: 14,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: const Text('Sign In'),
-                  ),
-                const SizedBox(height: 16),
-                const Text(
-                  "Don't have an account? ",
-                  style: TextStyle(fontSize: 14),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // TODO: Navigate to sign-up screen
-                  },
-                  child: const Text(
-                    'Sign up',
-                    style: TextStyle(color: Colors.blue),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class SubmitButton extends StatelessWidget {
+  const SubmitButton({required this.onSubmit, super.key});
+  final void Function(BuildContext) onSubmit;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () => onSubmit(context),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.blue,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 80,
+          vertical: 14,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+      ),
+      child: const Text('Sign In'),
+    );
+  }
+}
+
+class SignUpButton extends StatelessWidget {
+  const SignUpButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: () {
+        // TODO: Navigate to sign-up screen
+      },
+      child: const Text(
+        'Sign up',
+        style: TextStyle(color: Colors.blue),
       ),
     );
   }
