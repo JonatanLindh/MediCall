@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-bool _isLoading = false;  //  _LoginScreenState
+
+bool _isLoading = false; //  _LoginScreenState
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,7 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String _email = '';
   String _password = '';
 
-  void _submit()  async {
+  Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
@@ -26,11 +27,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
       try {
         final response = await http.post(
-          Uri.parse('http://10.0.2.2:8000/api/login'), // local Robyn backend port
+          Uri.parse(
+            'http://10.0.2.2:8000/api/login',
+          ), // local Robyn backend port
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'email': _email, 'password': _password}),
         );
-        print(response.statusCode);  // test
+        print(response.statusCode); // test
 
         if (response.statusCode == 200) {
           // login succeed Dashboard
@@ -53,7 +56,6 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -93,9 +95,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     prefixIcon: const Icon(Icons.lock_outline),
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
-                      icon: Icon(_obscurePassword
-                          ? Icons.visibility_off
-                          : Icons.visibility),
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                      ),
                       onPressed: () {
                         setState(() => _obscurePassword = !_obscurePassword);
                       },
@@ -119,23 +123,28 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                _isLoading
-                    ? const Center(child: CircularProgressIndicator())//loading condition
-                :ElevatedButton(
-                  onPressed: _submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 80, vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                if (_isLoading)
+                  const Center(child: CircularProgressIndicator())
+                else
+                  ElevatedButton(
+                    onPressed: _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 80,
+                        vertical: 14,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                     ),
+                    child: const Text('Sign In'),
                   ),
-                  child: const Text('Sign In'),
-                ),
                 const SizedBox(height: 16),
-                const Text("Don't have an account? ",
-                    style: TextStyle(fontSize: 14)),
+                const Text(
+                  "Don't have an account? ",
+                  style: TextStyle(fontSize: 14),
+                ),
                 TextButton(
                   onPressed: () {
                     // TODO: Navigate to sign-up screen

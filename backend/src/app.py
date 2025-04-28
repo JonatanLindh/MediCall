@@ -1,7 +1,8 @@
+from http.client import OK, UNAUTHORIZED
 from prisma import Prisma
 from prisma.models import User
 
-from robyn import Robyn
+from robyn import Response, Robyn
 
 app = Robyn(__file__)
 prisma = Prisma(auto_register=True)
@@ -26,6 +27,29 @@ async def h():
         },
     )
     return user.model_dump_json(indent=2)
+
+
+# user list
+users = {
+    "test@example.com": "password123",
+    "admin@example.com": "adminpass",
+}
+
+
+@app.post("/api/login")
+async def login(request):
+    data = request.json()
+    email = data.get("email")
+    password = data.get("password")
+
+    if email in users and users[email] == password:
+        print("Login success")
+        return Response(status_code=OK, headers={}, description="OK")
+    else:
+        print("Login failed")
+        return Response(
+            status_code=UNAUTHORIZED, headers={}, description="Unauthorized"
+        )
 
 
 if __name__ == "__main__":
