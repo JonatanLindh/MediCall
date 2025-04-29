@@ -33,6 +33,7 @@
             gtk3
             glib
             pkg-config
+            just
           ];
         };
       }
