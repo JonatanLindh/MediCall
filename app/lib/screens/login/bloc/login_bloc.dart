@@ -7,6 +7,8 @@ import 'package:meta/meta.dart';
 part 'login_event.dart';
 part 'login_state.dart';
 
+const String apiUrl = 'https://w0wswtgv-8080.euw.devtunnels.ms/api';
+
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc() : super(LoginInitial()) {
     on<LoginButtonPressed>((event, emit) async {
@@ -14,7 +16,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       try {
         final response = await http.post(
-          Uri.parse('http://10.0.2.2:8000/api/login'),
+          Uri.parse('$apiUrl/login'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'email': event.email, 'password': event.password}),
         );

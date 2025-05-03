@@ -1,0 +1,11 @@
+services:
+  livekit-server:
+    image: livekit/livekit-server:latest
+    container_name: livekit-server
+    # ports:
+    #   - "7880:7880" # HTTP port
+    #   - "7881:7881" # WebSocket port
+    environment:
+      - "LIVEKIT_KEYS=api_key: api_secret" # Replace with your API key and secret
+    volumes:
+      - ./config.yaml:/livekit.yaml # Mount your configuration file if needed

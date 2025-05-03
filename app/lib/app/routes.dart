@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicall/screens/dashboard/dashboard_screen.dart';
 import 'package:medicall/screens/home/home_screen.dart';
-import 'package:medicall/screens/login/login_screen.dart';
+import 'package:medicall/screens/login/login.dart';
 
 part 'routes.g.dart';
 
