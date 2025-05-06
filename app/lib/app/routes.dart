@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicall/screens/dashboard/dashboard_screen.dart';
+import 'package:medicall/screens/emergency_status/timeline_screen.dart';
 import 'package:medicall/screens/home/home_screen.dart';
 import 'package:medicall/screens/login/login.dart';
 
@@ -13,7 +14,7 @@ final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 // Don't have to touch to add routes, `$appRoutes` will be regenerated
 final GoRouter router = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/',
+  initialLocation: '/timeline',
   routes: $appRoutes,
 );
 
@@ -46,5 +47,16 @@ class DashboardRoute extends GoRouteData {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const DashboardScreen();
+  }
+}
+
+@TypedGoRoute<TimelineRoute>(
+  path: '/timeline',
+)
+@immutable
+class TimelineRoute extends GoRouteData {
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return TimelineScreen();
   }
 }
