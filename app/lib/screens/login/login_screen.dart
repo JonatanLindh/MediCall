@@ -168,7 +168,7 @@ class SignUpButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () {
-        // TODO: Navigate to sign-up screen
+        // TODO: Navigate to sign-up screen.
       },
       child: const Text(
         'Sign up',
