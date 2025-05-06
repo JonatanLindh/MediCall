@@ -127,6 +127,25 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(fontSize: 14),
                     ),
                     const SignUpButton(),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 80,
+                          vertical: 14,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: () {
+                        DoctorHomeRoute().go(context);
+                      },
+                      child: const Text(
+                        'Log in as Doctor',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
                   ],
                 ),
               ),

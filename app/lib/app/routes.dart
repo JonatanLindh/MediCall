@@ -16,7 +16,7 @@ final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 // Don't have to touch to add routes, `$appRoutes` will be regenerated
 final GoRouter router = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/doctor/home',
+  initialLocation: '/login',
   routes: $appRoutes,
 );
 
