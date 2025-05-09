@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicall/screens/dashboard/dashboard_screen.dart';
+import 'package:medicall/screens/doctor/doctor.dart';
 import 'package:medicall/screens/emergency_status/timeline_screen.dart';
 import 'package:medicall/screens/home/home_screen.dart';
 import 'package:medicall/screens/login/login.dart';
@@ -10,11 +11,12 @@ import 'package:medicall/screens/login/login.dart';
 part 'routes.g.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 
 // Don't have to touch to add routes, `$appRoutes` will be regenerated
 final GoRouter router = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/timeline',
+  initialLocation: '/login',
   routes: $appRoutes,
 );
 
@@ -58,5 +60,57 @@ class TimelineRoute extends GoRouteData {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return TimelineScreen();
+  }
+}
+
+@TypedShellRoute<DoctorShellRoute>(
+  routes: [
+    TypedGoRoute<DoctorHomeRoute>(path: '/doctor/home'),
+    TypedGoRoute<DoctorReportsRoute>(path: '/doctor/reports'),
+    TypedGoRoute<DoctorNotificationsRoute>(path: '/doctor/notifications'),
+    TypedGoRoute<DoctorProfileRoute>(path: '/doctor/profile'),
+  ],
+)
+@immutable
+class DoctorShellRoute extends ShellRouteData {
+  const DoctorShellRoute();
+
+  static final GlobalKey<NavigatorState> $navigatorKey = shellNavigatorKey;
+
+  @override
+  Widget builder(BuildContext context, GoRouterState state, Widget navigator) {
+    return DoctorShell(child: navigator);
+  }
+}
+
+@immutable
+class DoctorHomeRoute extends GoRouteData {
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const DoctorHomeScreen();
+  }
+}
+
+@immutable
+class DoctorReportsRoute extends GoRouteData {
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const DoctorReportsScreen();
+  }
+}
+
+@immutable
+class DoctorNotificationsRoute extends GoRouteData {
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const DoctorNotificationsScreen();
+  }
+}
+
+@immutable
+class DoctorProfileRoute extends GoRouteData {
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const DoctorProfileScreen();
   }
 }
