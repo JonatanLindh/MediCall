@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:medicall/screens/doctor/notifications/view/notification_item.dart';
 import 'package:medicall/screens/doctor/notifications/view/notification_model.dart';
-import 'package:medicall/screens/doctor/notifications/view/notificatoin_item.dart';
 
 class DoctorNotificationsScreen extends StatelessWidget {
   const DoctorNotificationsScreen({super.key});
