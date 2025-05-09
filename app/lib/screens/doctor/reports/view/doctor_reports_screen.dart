@@ -1,156 +1,175 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
+import 'package:medicall/screens/doctor/reports/cubit/doctor_reports_cubit.dart';
 
-class DoctorReportsScreen extends StatefulWidget {
+class DoctorReportsScreen extends HookWidget {
   const DoctorReportsScreen({super.key});
 
-  @override
-  State<DoctorReportsScreen> createState() => _DoctorReportsPageState();
-}
-
-class _DoctorReportsPageState extends State<DoctorReportsScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  String _filter = 'unresolved'; // 'unresolved' or 'resolved'
-
-  final List<Report> _reports = [
-    Report(name: 'Anna Ericsson', description: 'Suspected heart attack', time: '09:34 AM', resolved: false),
-    Report(name: 'Sven Pettersson', description: 'Fever', time: 'April 14', resolved: true),
-  ];
+  void filter(BuildContext context, ReportStatus status) {
+    context.read<DoctorReportsCubit>().filterStatus(status);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final filteredReports = _reports.where((r) {
-      final matchFilter = _filter == 'unresolved'
-          ? !r.resolved
-          : _filter == 'resolved'
-              ? r.resolved
-              : true; // 'all' case
-      final matchSearch = '${r.name} ${r.description}'.toLowerCase().contains(_searchController.text.toLowerCase());
-      return matchFilter && matchSearch;
-    }).toList();
+    final searchController = useTextEditingController();
 
-    final unresolvedCount = _reports.where((r) => !r.resolved).length;
-    final resolvedCount = _reports.where((r) => r.resolved).length;
-    final allCount = _reports.length;
+    return BlocProvider(
+      create: (context) {
+        final cubit = DoctorReportsCubit();
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Reports'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                builder: (context) => Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      title: Text('Unresolved ($unresolvedCount)'),
-                      onTap: () {
-                        setState(() => _filter = 'unresolved');
-                        Navigator.pop(context);
-                      },
-                    ),
-                    ListTile(
-                      title: Text('Resolved ($resolvedCount)'),
-                      onTap: () {
-                        setState(() => _filter = 'resolved');
-                        Navigator.pop(context);
-                      },
-                    ),
-                    ListTile(
-                      title: Text('All ($allCount)'),
-                      onTap: () {
-                        setState(() => _filter = 'all');
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ],
-                ),
-              );
-            },
-          )
-        ],
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search reports...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: Colors.grey, width: 1),
-                ),
-              ),
-              onChanged: (_) => setState(() {}),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              TextButton(
-                onPressed: () => setState(() => _filter = 'unresolved'),
-                child: Text('Unresolved ($unresolvedCount)'),
-              ),
-              TextButton(
-                onPressed: () => setState(() => _filter = 'resolved'),
-                child: Text('Resolved ($resolvedCount)'),
-              ),
-              TextButton(
-                onPressed: () => setState(() => _filter = 'all'),
-                child: Text('All ($allCount)'),
-              ),
-            ],
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: filteredReports.length,
-              itemBuilder: (context, index) {
-                final report = filteredReports[index];
-                return ListTile(
-                  title: Text(report.name),
-                  subtitle: Text(report.description),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(report.time),
-                      Checkbox(
-                        value: report.resolved,
-                        onChanged: (val) {
-                          setState(() {
-                            report.resolved = val!;
-                          });
-                        },
-                      ),
-                    ],
+        searchController.addListener(() {
+          cubit.searchChanged(searchController.text);
+        });
+
+        return cubit;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: const Text('Reports'),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.filter_list),
+              onPressed: () {
+                showModalBottomSheet<void>(
+                  context: context,
+                  builder: (context) =>
+                      BlocBuilder<DoctorReportsCubit, DoctorReportsState>(
+                    builder: (context, state) {
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            title: Text(
+                              'Unresolved (${state.unresolvedCount})',
+                            ),
+                            onTap: () {
+                              filter(context, ReportStatus.unresolved);
+                              context.pop();
+                            },
+                          ),
+                          ListTile(
+                            title: Text('Resolved (${state.resolvedCount})'),
+                            onTap: () {
+                              filter(context, ReportStatus.resolved);
+                              context.pop();
+                            },
+                          ),
+                          ListTile(
+                            title: Text('All (${state.allCount})'),
+                            onTap: () {
+                              filter(context, ReportStatus.all);
+                              context.pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 );
               },
             ),
-          ),
-        ],
+          ],
+        ),
+        body: BlocBuilder<DoctorReportsCubit, DoctorReportsState>(
+          builder: (context, state) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search reports...',
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    FilterButton(
+                      state: state,
+                      filter: ReportStatus.unresolved,
+                      text: 'Unresolved (${state.unresolvedCount})',
+                    ),
+                    FilterButton(
+                      state: state,
+                      filter: ReportStatus.resolved,
+                      text: 'Resolved (${state.resolvedCount})',
+                    ),
+                    FilterButton(
+                      state: state,
+                      filter: ReportStatus.all,
+                      text: 'All (${state.allCount})',
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: state.filteredReports.length,
+                    itemBuilder: (context, index) {
+                      final report = state.filteredReports[index];
+                      return ListTile(
+                        title: Text(report.name),
+                        subtitle: Text(report.description),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(report.time),
+                            Checkbox(
+                              value: report.resolved,
+                              onChanged: (val) {
+                                if (val == null) return;
+                                context
+                                    .read<DoctorReportsCubit>()
+                                    .setResolved(id: report.id, value: val);
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
 }
 
-class Report {
-  final String name;
-  final String description;
-  final String time;
-  bool resolved;
-
-  Report({
-    required this.name,
-    required this.description,
-    required this.time,
-    this.resolved = false,
+class FilterButton extends StatelessWidget {
+  const FilterButton({
+    required this.state,
+    required this.filter,
+    required this.text,
+    super.key,
   });
-}
 
+  final ReportStatus filter;
+  final DoctorReportsState state;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      style: TextButton.styleFrom(
+        backgroundColor: state.statusFilter == filter
+            ? Theme.of(context).highlightColor
+            : Colors.transparent,
+      ),
+      onPressed: () => context.read<DoctorReportsCubit>().filterStatus(filter),
+      child: Text(text),
+    );
+  }
+}
