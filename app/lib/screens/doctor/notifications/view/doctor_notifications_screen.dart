@@ -16,7 +16,7 @@ class DoctorNotificationsScreen extends StatelessWidget {
       NotificationModel(
         status: NotificationStatus.reminder,
         title: 'Reminder',
-        message: 'Follow up with Anna Ericsson\'s report',
+        message: "Follow up with Anna Ericsson's report",
       ),
       NotificationModel(
         status: NotificationStatus.resolved,
@@ -45,4 +45,3 @@ class DoctorNotificationsScreen extends StatelessWidget {
     );
   }
 }
-
