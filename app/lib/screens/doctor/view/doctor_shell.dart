@@ -57,12 +57,16 @@ class DoctorShell extends StatelessWidget {
             switch (index) {
               case 0:
                 DoctorHomeRoute().go(context);
+                return;
               case 1:
                 DoctorReportsRoute().go(context);
+                return;
               case 2:
                 DoctorNotificationsRoute().go(context);
+                return;
               case 3:
                 DoctorProfileRoute().go(context);
+                return;
             }
           },
         ),

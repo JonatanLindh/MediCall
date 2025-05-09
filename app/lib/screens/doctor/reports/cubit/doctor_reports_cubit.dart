@@ -19,17 +19,17 @@ class DoctorReportsCubit extends Cubit<DoctorReportsState> {
   }
 
   void setResolved({required String id, required bool value}) {
-    final reports = state.reports;
-    final index = reports.indexWhere((report) => report.id == id);
+    final updatedReports = state.reports.map((report) {
+      if (report.id == id) {
+        return report.copyWith(resolved: value);
+      }
+      return report;
+    }).toList();
 
-    if (index != -1) {
-      reports[index].resolved = value;
-
-      emit(
-        state.copyWith(
-          reports: reports,
-        ),
-      );
-    }
+    emit(
+      state.copyWith(
+        reports: updatedReports,
+      ),
+    );
   }
 }
