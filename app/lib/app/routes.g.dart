@@ -10,6 +10,9 @@ List<RouteBase> get $appRoutes => [
       $homeRoute,
       $timelineRoute,
       $doctorShellRoute,
+      $patientIdRoute,
+      $healthDetailRoute,
+      $feedbackRoute,
     ];
 
 RouteBase get $homeRoute => GoRouteData.$route(
@@ -187,6 +190,73 @@ extension $DoctorProfileRouteExtension on DoctorProfileRoute {
 
   String get location => GoRouteData.$location(
         '/doctor/profile',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $patientIdRoute => GoRouteData.$route(
+      path: '/patient-id',
+      factory: $PatientIdRouteExtension._fromState,
+    );
+
+extension $PatientIdRouteExtension on PatientIdRoute {
+  static PatientIdRoute _fromState(GoRouterState state) => PatientIdRoute();
+
+  String get location => GoRouteData.$location(
+        '/patient-id',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $healthDetailRoute => GoRouteData.$route(
+      path: '/health-detail',
+      factory: $HealthDetailRouteExtension._fromState,
+    );
+
+extension $HealthDetailRouteExtension on HealthDetailRoute {
+  static HealthDetailRoute _fromState(GoRouterState state) =>
+      HealthDetailRoute();
+
+  String get location => GoRouteData.$location(
+        '/health-detail',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $feedbackRoute => GoRouteData.$route(
+      path: '/feedback',
+      factory: $FeedbackRouteExtension._fromState,
+    );
+
+extension $FeedbackRouteExtension on FeedbackRoute {
+  static FeedbackRoute _fromState(GoRouterState state) => FeedbackRoute();
+
+  String get location => GoRouteData.$location(
+        '/feedback',
       );
 
   void go(BuildContext context) => context.go(location);

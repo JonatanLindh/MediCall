@@ -51,7 +51,7 @@ class _FeedbackFormState extends State<_FeedbackForm> {
             'We’d love to hear from you',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             textAlign: TextAlign.center,
-          ),
+          ), 
           const SizedBox(height: 24),
           TextField(
             controller: _controller,
