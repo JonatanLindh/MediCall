@@ -9,6 +9,8 @@ let
     platforms-android-34
     platforms-android-35
     ndk-26-3-11579264
+    ndk-27-0-12077973
+    cmake-3-22-1
   ]);
   originalFlutter = pkgs.flutter; # Renamed for clarity
   flutterMod = "${config.devenv.state}/flutter";
@@ -101,6 +103,7 @@ in
     originalFlutter # Keep original for the install script
     pkgs.git
     pkgs.rsync # ***** ADDED/ENSURED *****
+    pkgs.cmake
   ];
 
   languages.java = {
@@ -168,7 +171,7 @@ in
       echo ""
       echo "--------------------------------------------------------------------------"
       echo "WARNING: Modifiable Flutter SDK at ${flutterMod} seems not properly installed (missing .git directory)."
-      echo "Please run 'devenv task flutter-sdk:install' and then re-enter the shell with 'devenv shell'."
+      echo "Please run 'devenv tasks run flutter-sdk:install' and then re-enter the shell with 'devenv shell'."
       echo "--------------------------------------------------------------------------"
     else
       echo "Modifiable Flutter SDK seems to be in place at ${flutterMod}"
