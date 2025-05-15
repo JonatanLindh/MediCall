@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:medicall/app/app_export.dart';
+import 'package:medicall/theme/theme_helper.dart';
 
 class DoctorHomeScreen extends StatelessWidget {
   const DoctorHomeScreen({super.key});
@@ -23,7 +24,7 @@ class DoctorHomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
+            const SizedBox(height: 60),
             Text(
               'Good morning',
               style: theme.textTheme.bodyLarge?.copyWith(
@@ -34,11 +35,11 @@ class DoctorHomeScreen extends StatelessWidget {
               doctorName,
               style: theme.textTheme.headlineMedium,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 60),
             Text('Next  Appointment', style: theme.textTheme.headlineMedium),
             Text(nextPatientName, style: theme.textTheme.bodyLarge),
             Text(nextAppointmentTime, style: theme.textTheme.bodyLarge),
-            const SizedBox(height: 30),
+            const SizedBox(height: 40),
             Center(
               child: ElevatedButton(
                 onPressed: () {
@@ -47,10 +48,10 @@ class DoctorHomeScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(25),
                   ),
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
+                      const EdgeInsets.symmetric(horizontal: 80, vertical: 16),
                 ),
                 child: Text(
                   'Anna Personal\nReport',
@@ -59,12 +60,12 @@ class DoctorHomeScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 80),
             const Text(
               'Today’s Tasks',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 00),
             Expanded(
               child: ListView.separated(
                 itemCount: tasks.length,
@@ -72,7 +73,7 @@ class DoctorHomeScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return Card(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     elevation: 2,
                     child: ListTile(
