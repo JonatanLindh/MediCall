@@ -1,4 +1,3 @@
-/.direnv
 /.envrc
 
 # Miscellaneous
@@ -125,3 +124,13 @@ app.*.map.json
 **/macos/Flutter/Flutter-*.xcconfig
 **/macos/DerivedData/
 **/macos/Runner.xcworkspace/
+
+# Devenv
+.devenv*
+devenv.local.nix
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
