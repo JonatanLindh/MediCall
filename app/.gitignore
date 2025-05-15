@@ -115,3 +115,13 @@ app.*.map.json
 !.idea/codeStyles/
 !.idea/dictionaries/
 !.idea/runConfigurations/
+
+
+# macOS related
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/macos/Flutter/ephemeral/
+**/macos/Pods/
+**/macos/.symlinks/
+**/macos/Flutter/Flutter-*.xcconfig
+**/macos/DerivedData/
+**/macos/Runner.xcworkspace/

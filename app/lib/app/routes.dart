@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicall/screens/dashboard/dashboard_screen.dart';
 import 'package:medicall/screens/doctor/doctor.dart';
-import 'package:medicall/screens/emergency_status/timeline_screen.dart';
-import 'package:medicall/screens/home/home_screen.dart';
-import 'package:medicall/screens/login/login.dart';
+import 'package:medicall/screens/patient/patient.dart';
 
 part 'routes.g.dart';
 
@@ -16,7 +14,7 @@ final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 // Don't have to touch to add routes, `$appRoutes` will be regenerated
 final GoRouter router = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/login',
+  initialLocation: '/timeline',
   routes: $appRoutes,
 );
 
@@ -112,5 +110,32 @@ class DoctorProfileRoute extends GoRouteData {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const DoctorProfileScreen();
+  }
+}
+
+@TypedGoRoute<PatientIdRoute>(path: '/patient-id')
+@immutable
+class PatientIdRoute extends GoRouteData {
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const PatientIdScreen();
+  }
+}
+
+@TypedGoRoute<HealthDetailRoute>(path: '/health-detail')
+@immutable
+class HealthDetailRoute extends GoRouteData {
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const HealthDetailScreen();
+  }
+}
+
+@TypedGoRoute<FeedbackRoute>(path: '/feedback')
+@immutable
+class FeedbackRoute extends GoRouteData {
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const FeedbackScreen();
   }
 }
