@@ -8,7 +8,7 @@ class HealthDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Health Detail')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: ListView(
           children: const [
             Center(
@@ -23,11 +23,11 @@ class HealthDetailScreen extends StatelessWidget {
             _FormRow(fields: [
               _TextField(label: 'Medication Name'),
               _TextField(label: 'Dosage Frequency'),
-            ]),
+            ],),
             _FormRow(fields: [
               _TextField(label: 'Medication Name'),
               _TextField(label: 'Dosage Frequency'),
-            ]),
+            ],),
             SizedBox(height: 24),
 
             Text('Chronic Conditions', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -42,8 +42,8 @@ class HealthDetailScreen extends StatelessWidget {
 }
 
 class _FormRow extends StatelessWidget {
-  final List<Widget> fields;
   const _FormRow({required this.fields});
+  final List<Widget> fields;
 
   @override
   Widget build(BuildContext context) {
@@ -56,9 +56,9 @@ class _FormRow extends StatelessWidget {
 }
 
 class _TextField extends StatelessWidget {
+  const _TextField({required this.label, this.maxLines = 1});
   final String label;
   final int maxLines;
-  const _TextField({required this.label, this.maxLines = 1});
 
   @override
   Widget build(BuildContext context) {
@@ -76,8 +76,8 @@ class _TextField extends StatelessWidget {
 }
 
 class _DropdownField extends StatelessWidget {
-  final String label;
   const _DropdownField({required this.label});
+  final String label;
 
   @override
   Widget build(BuildContext context) {

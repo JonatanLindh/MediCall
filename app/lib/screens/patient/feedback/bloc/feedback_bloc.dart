@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'feedback_event.dart';
-import 'feedback_state.dart';
+import 'package:medicall/screens/patient/feedback/bloc/feedback_event.dart';
+import 'package:medicall/screens/patient/feedback/bloc/feedback_state.dart';
 
 class FeedbackBloc extends Bloc<FeedbackEvent, FeedbackState> {
   FeedbackBloc() : super(FeedbackInitial()) {
