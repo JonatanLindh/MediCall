@@ -6,6 +6,11 @@ import 'package:medicall/screens/dashboard/dashboard_screen.dart';
 import 'package:medicall/screens/doctor/doctor.dart';
 import 'package:medicall/screens/patient/patient.dart';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:medicall/screens/patient/chat/patient_ai_chat_screen.dart';
+import 'package:medicall/app/shared_chat/bloc/chat_bloc.dart';
+import 'package:medicall/screens/doctor/chat/doctor_chat_screen.dart';
+
 part 'routes.g.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -14,7 +19,7 @@ final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 // Don't have to touch to add routes, `$appRoutes` will be regenerated
 final GoRouter router = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/timeline',
+  initialLocation: '/doctor-chat',
   routes: $appRoutes,
 );
 
@@ -139,3 +144,29 @@ class FeedbackRoute extends GoRouteData {
     return const FeedbackScreen();
   }
 }
+
+
+@TypedGoRoute<PatientChatRoute>(path: '/patient-chat')
+@immutable
+class PatientChatRoute extends GoRouteData {
+  const PatientChatRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const PatientAIChatScreen();
+
+  }
+}
+
+@TypedGoRoute<DoctorChatRoute>(path: '/doctor-chat')
+@immutable
+class DoctorChatRoute extends GoRouteData {
+  const DoctorChatRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const DoctorChatScreen();
+  }
+}
+
+
