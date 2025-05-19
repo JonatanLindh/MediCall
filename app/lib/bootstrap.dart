@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:medicall/app/shared_chat/bloc/chat_bloc.dart';
 
-import 'package:bloc/bloc.dart';
-import 'package:flutter/widgets.dart';
+
 
 class AppBlocObserver extends BlocObserver {
   const AppBlocObserver();
@@ -29,5 +31,11 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
 
   // Add cross-flavor configuration here
 
-  runApp(await builder());
+  runApp(
+  BlocProvider(
+    create: (_) => ChatBloc(),
+    child: await builder(),
+  ),
+);
+
 }

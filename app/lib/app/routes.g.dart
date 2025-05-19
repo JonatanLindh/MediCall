@@ -13,6 +13,8 @@ List<RouteBase> get $appRoutes => [
       $patientIdRoute,
       $healthDetailRoute,
       $feedbackRoute,
+      $patientChatRoute,
+      $doctorChatRoute,
     ];
 
 RouteBase get $homeRoute => GoRouteData.$route(
@@ -257,6 +259,52 @@ extension $FeedbackRouteExtension on FeedbackRoute {
 
   String get location => GoRouteData.$location(
         '/feedback',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $patientChatRoute => GoRouteData.$route(
+      path: '/patient-chat',
+      factory: $PatientChatRouteExtension._fromState,
+    );
+
+extension $PatientChatRouteExtension on PatientChatRoute {
+  static PatientChatRoute _fromState(GoRouterState state) =>
+      const PatientChatRoute();
+
+  String get location => GoRouteData.$location(
+        '/patient-chat',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $doctorChatRoute => GoRouteData.$route(
+      path: '/doctor-chat',
+      factory: $DoctorChatRouteExtension._fromState,
+    );
+
+extension $DoctorChatRouteExtension on DoctorChatRoute {
+  static DoctorChatRoute _fromState(GoRouterState state) =>
+      const DoctorChatRoute();
+
+  String get location => GoRouteData.$location(
+        '/doctor-chat',
       );
 
   void go(BuildContext context) => context.go(location);
