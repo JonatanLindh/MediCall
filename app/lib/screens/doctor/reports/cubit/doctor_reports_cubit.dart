@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:medicall/screens/doctor/reports/data/report.dart';
 
 part 'doctor_reports_state.dart';
@@ -61,7 +62,7 @@ void unassignDoctor({required String id}) {
 }
 void setStatusStep({required String id, required TaskStatusStep status}) {
     final updatedReports = state.reports.map((report) {
-      if (report.id == id) {
+      if (report.id == id) {  
         return report.copyWith(statusStep: status);
       }
       return report;

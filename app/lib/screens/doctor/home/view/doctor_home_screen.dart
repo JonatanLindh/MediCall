@@ -72,7 +72,7 @@ class DoctorHomeScreenContent extends StatelessWidget {
               //        const EdgeInsets.symmetric(horizontal: 80, vertical: 16),
               //  ),
                 child: AssignedTaskStatusButton(
-                  currentDoctorId: "Dr. Johan Nilsson",// Replace with actual doctor ID
+                  currentDoctorId: 'Dr. Johan Nilsson',// Replace with actual doctor ID
                   onStatusChanged: (reportId, status) {
                     final cubit=context.read<DoctorReportsCubit>();
                     print("$reportId \n $status");// Handle status change
@@ -83,7 +83,7 @@ class DoctorHomeScreenContent extends StatelessWidget {
                 ),
               //),
             ),
-            const SizedBox(height: 80),
+            const SizedBox(height: 50),
             const Text(
               'Today’s Tasks',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),

@@ -20,6 +20,8 @@ class AssignedTaskStatusButton extends StatefulWidget {
 class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
   int _currentTaskIndex = 0;
   TaskStatusStep _statusStep = TaskStatusStep.departure;
+  int? _initialTaskCount;
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +30,7 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
     final assignedTasks = state.reports.where((r) =>
       r.assignedDoctorId == widget.currentDoctorId && !r.completed).toList();
 
+  _initialTaskCount ??= assignedTasks.length;// Store the initial task count
     // If no assigned tasks, show a message
   if (assignedTasks.isEmpty) {
       return Center(
@@ -38,16 +41,16 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.emoji_events, color: Colors.green, size: 24),
-                SizedBox(width: 8),
+                SizedBox(width: 04),
                 Text(
-                  'All caught up.',
+                  'All tasks completed.',
                   style: TextStyle(fontSize: 18),
                 ),
               ],
             ),
             SizedBox(height: 8),
             Text(
-              'Take care of yourself.',
+              'Great work!',
               style: TextStyle(fontSize: 18),
             ),
           ],
@@ -64,6 +67,8 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
     }
 
     final currentTask = assignedTasks[_currentTaskIndex];
+    final task_length=assignedTasks.length;
+    _statusStep = currentTask.statusStep;
 
     // Map current status step to display text
     String statusText;
@@ -117,6 +122,10 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
       },
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -124,6 +133,20 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
           Text(currentTask.name, style: const TextStyle(fontSize: 20)),
           const SizedBox(height: 4),
           Text(statusText, style: const TextStyle(fontSize: 18, color: Colors.blue)),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: 24),
+              const SizedBox(width: 4),
+              Text(
+                'Task ${_initialTaskCount!-assignedTasks.length+1} of ${_initialTaskCount}',
+                style: const TextStyle(fontSize: 16 ),
+                
+              ),
+            ],
+          ),
+
         ],
       ),
     );

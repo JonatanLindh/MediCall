@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicall/screens/doctor/reports/data/report.dart';
 
 
-enum TaskStatusStep { departure, arrival, complete }
+//enum TaskStatusStep { departure, arrival, complete }
 
 class TimelineScreen extends StatelessWidget {
   final TaskStatusStep currentStatus;
@@ -40,8 +40,13 @@ class TimelineScreen extends StatelessWidget {
         }
       },
     );
+    if (report == null) {
+      return Scaffold(
+        body: Center(child: Text("Report not found")),
+      );
+    }
 
-    final steps = getStepFromStatus(currentStatus);
+    final steps = getStepFromStatus(report.statusStep);
     return Scaffold(
       backgroundColor: appTheme.indigo50,
       body: Container(
