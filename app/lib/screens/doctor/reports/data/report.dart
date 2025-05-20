@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum TaskStatusStep {
   departure,
   arrival,
@@ -12,7 +14,7 @@ class Report {
     required this.time,
     this.assignedDoctorId,
     required this.completed,
-    this.statusStep = TaskStatusStep.departure,
+    required this.statusStep,
 
   });
 
@@ -56,7 +58,8 @@ final List<Report> fakeReports = [
     description: 'Suspected heart attack',
     time: '09:34 AM',
     assignedDoctorId: null, // not assigned
-    completed: false,
+    completed: false, 
+    statusStep: TaskStatusStep.departure,
   ),
   Report(
     id: '2',
@@ -64,7 +67,8 @@ final List<Report> fakeReports = [
     description: 'Fever',
     time: 'April 14',
     assignedDoctorId: 'Dr. Emma Lundgren',
-    completed: true,
+    completed: true, 
+    statusStep: TaskStatusStep.complete,
   ),
   Report(
     id: '3',
@@ -72,6 +76,7 @@ final List<Report> fakeReports = [
     description: 'Blood pressure abnormal',
     time: '11:00 AM',
     assignedDoctorId: 'Dr. Johan Nilsson',
-    completed: false,
+    completed: false, 
+    statusStep: TaskStatusStep.departure,
   ),
 ];

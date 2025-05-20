@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:medicall/screens/dashboard/dashboard_screen.dart';
 import 'package:medicall/screens/doctor/doctor.dart';
 import 'package:medicall/screens/patient/patient.dart';
+import 'package:medicall/screens/doctor/reports/data/report.dart';
 
 part 'routes.g.dart';
 
