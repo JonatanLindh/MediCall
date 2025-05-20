@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
@@ -19,9 +21,14 @@ class GeoBloc extends Bloc<GeoEvent, GeoState> {
     GeoSubscriptionRequested event,
     Emitter<GeoState> emit,
   ) async {
-    return emit.forEach(
-      geoRepository.getPositionStream(),
-      onData: GeoGotPosition.new,
+    print('GeoBloc: _onSubscriptionRequested');
+
+    await emit.forEach(
+      geoRepository.getPositionStream,
+      onData: (data) {
+        print('GeoBloc: onData');
+        return GeoGotPosition(data);
+      },
       onError: (error, stackTrace) {
         addError(error, stackTrace);
         return GeoError(error.toString());

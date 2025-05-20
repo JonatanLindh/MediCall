@@ -19,6 +19,7 @@ class App extends StatelessWidget {
               ..add(GeoSubscriptionRequested()),
         child: BlocListener<GeoBloc, GeoState>(
           listener: (context, state) {
+            print(state);
             log(state.toString());
           },
           child: MaterialApp.router(

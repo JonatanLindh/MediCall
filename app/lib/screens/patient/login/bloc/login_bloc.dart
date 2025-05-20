@@ -2,12 +2,11 @@ import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:http/http.dart' as http;
+import 'package:medicall/main.dart';
 import 'package:meta/meta.dart';
 
 part 'login_event.dart';
 part 'login_state.dart';
-
-const String apiUrl = 'https://w0wswtgv-8080.euw.devtunnels.ms/api';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc() : super(LoginInitial()) {

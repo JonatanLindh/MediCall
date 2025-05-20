@@ -1,8 +1,10 @@
 from http.client import OK, UNAUTHORIZED
-from prisma import Prisma
-from prisma.models import User
-
+import json
+from bcrypt import gensalt, hashpw
+from prisma import Base64, Prisma
+from prisma.models import Doctor
 from robyn import Response, Robyn
+from robyn.types import Body
 
 app = Robyn(__file__)
 prisma = Prisma(auto_register=True)
@@ -19,14 +21,77 @@ async def shutdown_handler() -> None:
         await prisma.disconnect()
 
 
-@app.get("/")
-async def h():
-    user = await User.prisma().create(
+class CreateDoctorBody(Body):
+    firstName: str
+    lastName: str
+    email: str
+    password: str
+
+
+@app.post("/api/doctors")
+async def register_doctor(request, body: CreateDoctorBody):
+    data = request.json()
+
+    password = data["password"]
+    first_name = data["firstName"]
+    last_name = data["lastName"]
+    email = data["email"]
+
+    pass_hash = hashpw(password.encode("utf-8"), gensalt())
+
+    doctor = await Doctor.prisma().create(
         data={
-            "name": "Robert",
+            "firstName": first_name,
+            "lastName": last_name,
+            "email": email,
+            "password_hash": Base64.encode(pass_hash),
         },
     )
-    return user.model_dump_json(indent=2)
+    return doctor.model_dump_json(indent=2)
+
+
+class UpdateDoctorLocationBody(Body):
+    latitude: float
+    longitude: float
+
+
+# TODO add auth
+@app.patch("/api/doctors/:id/location")
+async def update_doctor_location(request, body: UpdateDoctorLocationBody):
+    print("hej")
+    id = request.path_params["id"]
+    data = request.json()
+    latitude = data["latitude"]
+    longitude = data["longitude"]
+
+    print(f"Updating doctor {id} location to {latitude}, {longitude}")
+
+    await Doctor.prisma().update(
+        where={"id": id},
+        data={
+            "latitude": float(latitude),
+            "longitude": float(longitude),
+        },
+    )
+
+
+# TODO add auth
+@app.get("/api/doctors/:id/location")
+async def get_doctor_location(request):
+    id = request.path_params["id"]
+    doctor = await Doctor.prisma().find_unique(
+        where={"id": id},
+    )
+    if doctor:
+        return json.dumps(
+            {
+                "latitude": doctor.latitude,
+                "longitude": doctor.longitude,
+            },
+            indent=2,
+        )
+    else:
+        return Response(status_code=404, description="Doctor not found", headers={})
 
 
 # user list
