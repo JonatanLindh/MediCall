@@ -7,6 +7,14 @@ enum TaskStatusStep {
 }
 
 class Report {
+  final String id;
+  final String name;
+  final String description;
+  final String time;
+  final String? assignedDoctorId;
+  final bool completed;
+  final TaskStatusStep statusStep;
+
   Report({
     required this.id,
     required this.name,
@@ -15,25 +23,16 @@ class Report {
     this.assignedDoctorId,
     required this.completed,
     required this.statusStep,
-
   });
 
-  final String id;
-  final String name;
-  final String description;
-  final String time;
-
-  final String? assignedDoctorId; // null 
-  final bool completed; // true 
-  final TaskStatusStep statusStep; // default is receiving
-
+  static const _undefined = Object();
 
   Report copyWith({
     String? id,
     String? name,
     String? description,
     String? time,
-    String? assignedDoctorId,
+    Object? assignedDoctorId = _undefined,
     bool? completed,
     TaskStatusStep? statusStep,
   }) {
@@ -42,12 +41,15 @@ class Report {
       name: name ?? this.name,
       description: description ?? this.description,
       time: time ?? this.time,
-      assignedDoctorId: this.assignedDoctorId,
+      assignedDoctorId: identical(assignedDoctorId, _undefined)
+          ? this.assignedDoctorId
+          : assignedDoctorId as String?, // allow null
       completed: completed ?? this.completed,
       statusStep: statusStep ?? this.statusStep,
     );
   }
 }
+
 
 
 
@@ -57,7 +59,7 @@ final List<Report> fakeReports = [
     name: 'Anna Ericsson',
     description: 'Suspected heart attack',
     time: '09:34 AM',
-    assignedDoctorId: null, // not assigned
+    assignedDoctorId: 'Dr. Johan Nilsson', // not assigned
     completed: false, 
     statusStep: TaskStatusStep.departure,
   ),
@@ -84,7 +86,7 @@ final List<Report> fakeReports = [
     name: 'Erik Andersson',
     description: 'Severe headache',
     time: 'April 14',
-    assignedDoctorId: 'Dr. Johan Nilsson', 
+    assignedDoctorId: null, 
     completed: false, 
     statusStep: TaskStatusStep.departure,
   ),
