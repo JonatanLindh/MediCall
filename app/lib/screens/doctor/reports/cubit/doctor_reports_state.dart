@@ -1,16 +1,21 @@
 part of 'doctor_reports_cubit.dart';
 
-enum ReportStatus { unresolved, resolved, all }
+enum ReportStatus { unassigned, assigned, completed, all }
 
 class DoctorReportsState {
   DoctorReportsState(this.reports, this.statusFilter, this.searchText)
-      : unresolvedCount = reports.where((r) => !r.resolved).length,
-        resolvedCount = reports.where((r) => r.resolved).length,
+      : unassignedCount = reports.where((r) => r.assignedDoctorId == null).length,
+        assignedCount = reports.where((r) => r.assignedDoctorId != null && !r.completed).length,
+        completedCount = reports.where((r) => r.assignedDoctorId != null && r.completed).length,
         allCount = reports.length,
         filteredReports = reports.where((report) {
-          final matchStatus = statusFilter == ReportStatus.all ||
-              (statusFilter == ReportStatus.resolved && report.resolved) ||
-              (statusFilter == ReportStatus.unresolved && !report.resolved);
+          final matchStatus =
+              statusFilter == ReportStatus.all ||
+              (statusFilter == ReportStatus.unassigned && report.assignedDoctorId == null) ||
+              (statusFilter == ReportStatus.assigned &&
+                  report.assignedDoctorId != null && !report.completed) ||
+              (statusFilter == ReportStatus.completed &&
+                  report.assignedDoctorId != null && report.completed);
 
           final matchSearch = '${report.name} ${report.description}'
               .toLowerCase()
@@ -21,8 +26,9 @@ class DoctorReportsState {
 
   final List<Report> reports;
 
-  final int unresolvedCount;
-  final int resolvedCount;
+  final int unassignedCount;
+  final int assignedCount;
+  final int completedCount;
   final int allCount;
 
   final String searchText;
@@ -43,5 +49,5 @@ class DoctorReportsState {
 }
 
 final class DoctorReportsInitial extends DoctorReportsState {
-  DoctorReportsInitial() : super(fakeReports, ReportStatus.unresolved, '');
+  DoctorReportsInitial() : super(fakeReports, ReportStatus.assigned, '');
 }

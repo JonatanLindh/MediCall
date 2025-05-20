@@ -1,9 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicall/app/app_export.dart';
+import 'package:medicall/screens/doctor/home/view/task_status_button.dart';
 import 'package:medicall/theme/theme_helper.dart';
+import 'package:medicall/screens/doctor/reports/cubit/doctor_reports_cubit.dart';
+import 'package:medicall/screens/doctor/reports/view/doctor_reports_screen.dart';
 
 class DoctorHomeScreen extends StatelessWidget {
   const DoctorHomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Wrap the home screen with BlocProvider and provide the doctor ID
+    return BlocProvider(
+      create: (_) => DoctorReportsCubit(),
+      child: const DoctorHomeScreenContent(),
+    );
+  }
+}
+
+class DoctorHomeScreenContent extends StatelessWidget {
+  const DoctorHomeScreenContent({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,24 +58,30 @@ class DoctorHomeScreen extends StatelessWidget {
             Text(nextAppointmentTime, style: theme.textTheme.bodyLarge),
             const SizedBox(height: 40),
             Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Go to report
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 80, vertical: 16),
+              //child: ElevatedButton(
+              //  onPressed: () {
+              //    // Go to report
+             //     final cubit=context.read<DoctorReportsCubit>();
+              //  },
+              //  style: ElevatedButton.styleFrom(
+              //    backgroundColor: Colors.blue,
+              //    shape: RoundedRectangleBorder(
+              //      borderRadius: BorderRadius.circular(25),
+              //    ),
+              //    padding:
+              //        const EdgeInsets.symmetric(horizontal: 80, vertical: 16),
+              //  ),
+                child: AssignedTaskStatusButton(
+                  currentDoctorId: "Dr. Johan Nilsson",// Replace with actual doctor ID
+                  onStatusChanged: (reportId, status) {
+                    final cubit=context.read<DoctorReportsCubit>();
+                    print("$reportId \n $status");// Handle status change
+                  },
+                  //'Anna Personal\nReport',
+                  //textAlign: TextAlign.center,
+                  //style: theme.textTheme.titleMedium,
                 ),
-                child: Text(
-                  'Anna Personal\nReport',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleMedium,
-                ),
-              ),
+              //),
             ),
             const SizedBox(height: 80),
             const Text(

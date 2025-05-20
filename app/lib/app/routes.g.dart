@@ -82,15 +82,18 @@ extension $DashboardRouteExtension on DashboardRoute {
 }
 
 RouteBase get $timelineRoute => GoRouteData.$route(
-      path: '/timeline',
+      path: '/timeline/:reportId/:status',
       factory: $TimelineRouteExtension._fromState,
     );
 
 extension $TimelineRouteExtension on TimelineRoute {
-  static TimelineRoute _fromState(GoRouterState state) => TimelineRoute();
+  static TimelineRoute _fromState(GoRouterState state) => TimelineRoute(
+        reportId: state.pathParameters['reportId']!,
+        status: state.pathParameters['status']!,
+      );
 
   String get location => GoRouteData.$location(
-        '/timeline',
+        '/timeline/${Uri.encodeComponent(reportId)}/${Uri.encodeComponent(status)}',
       );
 
   void go(BuildContext context) => context.go(location);

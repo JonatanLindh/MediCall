@@ -14,7 +14,7 @@ final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 // Don't have to touch to add routes, `$appRoutes` will be regenerated
 final GoRouter router = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/timeline',
+  initialLocation: '/',
   routes: $appRoutes,
 );
 
@@ -51,15 +51,33 @@ class DashboardRoute extends GoRouteData {
 }
 
 @TypedGoRoute<TimelineRoute>(
-  path: '/timeline',
+  path: '/timeline/:reportId/:status',
 )
 @immutable
 class TimelineRoute extends GoRouteData {
+  final String reportId;
+  final String status;
+
+  const TimelineRoute({
+    required this.reportId,
+    required this.status,
+  });
+
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return TimelineScreen();
+    
+    final currentStatus = TaskStatusStep.values.firstWhere(
+      (e) => e.name == status,
+      orElse: () => TaskStatusStep.departure,
+    );
+
+    return TimelineScreen(
+      reportId: reportId,
+      currentStatus: currentStatus,
+    );
   }
 }
+
 
 @TypedShellRoute<DoctorShellRoute>(
   routes: [
@@ -85,7 +103,7 @@ class DoctorShellRoute extends ShellRouteData {
 class DoctorHomeRoute extends GoRouteData {
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const DoctorHomeScreen();
+    return DoctorHomeScreen();
   }
 }
 

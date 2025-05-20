@@ -18,19 +18,57 @@ class DoctorReportsCubit extends Cubit<DoctorReportsState> {
     );
   }
 
-  void setResolved({required String id, required bool value}) {
-    final updatedReports = state.reports;
-    for (final report in updatedReports) {
+  void setCompleted({required String id, required bool value}) {
+    final updatedReports = state.reports.map((report) {
       if (report.id == id) {
-        report.resolved = value;
-        break;
+        return report.copyWith(completed: value);
       }
-    }
+      return report;
+    }).toList();
 
     emit(
       state.copyWith(
         reports: updatedReports,
       ),
+    );
+  }
+
+  void assignToDoctor({required String id, required String doctorId}) {
+    final updatedReports = state.reports.map((report) {
+      if (report.id == id) {
+        return report.copyWith(assignedDoctorId: doctorId);
+      }
+      return report;
+    }).toList();
+
+    emit(
+      state.copyWith(
+        reports: updatedReports,
+      ),
+    );
+  }
+
+void unassignDoctor({required String id}) {
+  final updatedReports = state.reports.map((report) {
+    if (report.id == id) {
+      return report.copyWith(assignedDoctorId: null);
+    }
+    return report;
+  }).toList();
+
+  emit(
+    state.copyWith(reports: updatedReports));
+}
+void setStatusStep({required String id, required TaskStatusStep status}) {
+    final updatedReports = state.reports.map((report) {
+      if (report.id == id) {
+        return report.copyWith(statusStep: status);
+      }
+      return report;
+    }).toList();
+
+    emit(
+      state.copyWith(reports: updatedReports),
     );
   }
 }

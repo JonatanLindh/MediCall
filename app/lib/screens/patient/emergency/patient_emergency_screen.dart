@@ -1,19 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:medicall/app/app_export.dart';
+import 'package:medicall/screens/doctor/reports/cubit/doctor_reports_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:medicall/screens/doctor/reports/data/report.dart';
+
+
+enum TaskStatusStep { departure, arrival, complete }
 
 class TimelineScreen extends StatelessWidget {
-  TimelineScreen({super.key});
+  final TaskStatusStep currentStatus;
+  final String reportId;
+  const TimelineScreen({
+    Key? key,
+    required this.currentStatus, required this.reportId,
+  }) : super(key: key);
 
-  final List<TimelineStep> steps = [
-    const TimelineStep('Receiving the emergency call', isActive: true),
-    const TimelineStep('Dispatching emergency resources', isActive: true),
-    const TimelineStep('Help is on the way', isActive: true),
-    const TimelineStep('Arrival at the scene', isActive: false),
-    const TimelineStep('Care completed', isActive: false),
-  ];
+
+
+  List<TimelineStep> getStepFromStatus(TaskStatusStep status) {
+    return [
+      const TimelineStep('Receiving the emergency call', isActive: true),
+      const TimelineStep('Dispatching emergency resources', isActive: true),
+      TimelineStep('Help is on the way', isActive: status.index >= TaskStatusStep.departure.index),
+      TimelineStep('Arrival at the scene', isActive: status.index >= TaskStatusStep.arrival.index),
+      TimelineStep('Care completed', isActive: status.index >= TaskStatusStep.complete.index),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
+    final report = context.select<DoctorReportsCubit, Report?>(
+      (cubit) {
+        try {
+          return cubit.state.reports.firstWhere(
+            (report) => report.id == reportId,
+          );
+        } catch (e) {
+          return null;
+        }
+      },
+    );
+
+    final steps = getStepFromStatus(currentStatus);
     return Scaffold(
       backgroundColor: appTheme.indigo50,
       body: Container(
@@ -36,7 +64,7 @@ class TimelineScreen extends StatelessWidget {
             const SizedBox(height: 60),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: _buildTimeline(context),
+              child: _buildTimeline(context, steps),
             ),
             Container(
               margin: const EdgeInsets.only(left: 4, right: 14),
@@ -115,7 +143,7 @@ class TimelineScreen extends StatelessWidget {
   }
 
   ///Timeline section
-  Widget _buildTimeline(BuildContext context) {
+  Widget _buildTimeline(BuildContext context, List<TimelineStep> steps) {
     return Column(
       children: List.generate(steps.length, (index) {
         final step = steps[index];
