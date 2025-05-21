@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicall/app/app_export.dart';
+import 'package:medicall/app/routes.dart';
 import 'package:medicall/screens/doctor/home/view/task_status_button.dart';
 import 'package:medicall/theme/theme_helper.dart';
 import 'package:medicall/screens/doctor/reports/cubit/doctor_reports_cubit.dart';
@@ -17,13 +18,23 @@ class DoctorHomeScreen extends StatelessWidget {
 
 class DoctorHomeScreenContent extends StatelessWidget {
   const DoctorHomeScreenContent({super.key});
+  //context.read<DoctorReportsCubit>();
+  
 
   @override
   Widget build(BuildContext context) {
-    const doctorName = 'Dr. Nilsson';
-    const nextPatientName = 'Anna Ericsson';//TODO: Request from API, task name
-    const nextAppointmentTime = 'April 15, 10:00';//TODO: Request from API, task time
+    const doctorName = 'Dr. Johan Nilsson';
+    // Get assigned tasks for this doctor
+    //TODO : if the data is from the backend
+    final state = context.watch<DoctorReportsCubit>().state;
+    final assignedTasks = state.reports.where((r) =>
+      r.assignedDoctorId == doctorName && !r.completed).toList();
 
+    // Pick the first assigned task, or null if none
+    final currentTask = assignedTasks.isNotEmpty ? assignedTasks[0]:null;
+
+    final nextPatientName = currentTask?.name ?? 'No assigned patient';
+    final nextAppointmentTime = currentTask?.time ?? 'No appointment';
     final tasks = [
       {'icon': Icons.description, 'text': "Review Sven's Report"},
       {'icon': Icons.calendar_today, 'text': 'Confirm April 16 Appointment'},
