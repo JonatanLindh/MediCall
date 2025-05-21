@@ -1,12 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicall/app/routes.dart';
-import 'package:medicall/main.dart';
-import 'package:medicall/repositories/geo/bloc/geo_bloc.dart';
-import 'package:http/http.dart' as http;
+import 'package:medicall/repositories/geo/geo.dart';
 
 class DoctorShell extends StatelessWidget {
   const DoctorShell({required this.child, super.key});
@@ -37,27 +33,10 @@ class DoctorShell extends StatelessWidget {
       body: BlocListener<GeoBloc, GeoState>(
         listener: (context, state) async {
           if (state is GeoGotPosition) {
-            print(
-              'Position: ${state.position.latitude}, ${state.position.longitude}',
-            );
-            // Assume user is cmav7q0450000woy0jw7em246
-            const id = 'cmav7q0450000woy0jw7em246';
-            final res = await http.patch(
-              Uri.parse('$apiUrl/doctors/$id/location'),
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: '''
-                {
-                  "latitude": ${state.position.latitude},
-                  "longitude": ${state.position.longitude}
-                }
-              ''',
-            );
-            log(
-              Uri.parse('$apiUrl/doctors/$id/location').toString(),
-            );
-            log('Response: ${res.statusCode} ${res.body}');
+            await context.read<GeoRepository>().uploadPosition(
+                  'cmav7q0450000woy0jw7em246',
+                  state.position,
+                );
           }
         },
         child: child,

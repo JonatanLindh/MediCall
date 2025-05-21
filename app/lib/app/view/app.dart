@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicall/app/routes.dart';
 import 'package:medicall/l10n/l10n.dart';
 import 'package:medicall/repositories/geo/geo.dart';
+import 'package:medicall/screens/patient/login/bloc/login_bloc.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -13,10 +14,17 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return RepositoryProvider(
       create: (_) => GeoRepository(),
-      child: BlocProvider(
-        create: (context) =>
-            GeoBloc(geoRepository: context.read<GeoRepository>())
-              ..add(GeoSubscriptionRequested()),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) =>
+                GeoBloc(geoRepository: context.read<GeoRepository>())
+                  ..add(GeoSubscriptionRequested()),
+          ),
+          BlocProvider(
+            create: (context) => LoginBloc(),
+          ),
+        ],
         child: BlocListener<GeoBloc, GeoState>(
           listener: (context, state) {
             print(state);

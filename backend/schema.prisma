@@ -16,6 +16,17 @@ model Doctor {
   email         String @unique
   password_hash Bytes
 
+  status String
+
   latitude  Float?
   longitude Float?
+}
+
+model Patient {
+  id        String @id @default(cuid())
+  firstName String
+  lastName  String
+
+  email         String @unique
+  password_hash Bytes
 }

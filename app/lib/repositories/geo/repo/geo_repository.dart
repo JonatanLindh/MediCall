@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'package:medicall/main.dart';
 
 class GeoRepository {
   Future<bool> _handlePermission() async {
@@ -38,6 +41,59 @@ class GeoRepository {
     yield* Geolocator.getPositionStream(
       locationSettings: locationSettings,
     );
+  }
+
+  Future<void> uploadPosition(String doctorId, Position position) async {
+    await http.patch(
+      Uri.parse('$apiUrl/doctors/$doctorId/location'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(StrippedPosition.fromPosition(position).toJson()),
+    );
+  }
+
+  Future<StrippedPosition?> getDoctorPosition(String doctorId) async {
+    final response = await http.get(
+      Uri.parse('$apiUrl/doctors/$doctorId/location'),
+      headers: {},
+    );
+
+    if (response.statusCode == 200) {
+      return StrippedPosition.fromJson(response.body);
+    } else {
+      return null;
+    }
+  }
+}
+
+class StrippedPosition {
+  StrippedPosition({
+    required this.latitude,
+    required this.longitude,
+  });
+
+  factory StrippedPosition.fromJson(String source) {
+    final data = jsonDecode(source) as Map<String, dynamic>;
+    return StrippedPosition(
+      latitude: (data['latitude'] as num).toDouble(),
+      longitude: (data['longitude'] as num).toDouble(),
+    );
+  }
+
+  factory StrippedPosition.fromPosition(Position position) {
+    return StrippedPosition(
+      latitude: position.latitude,
+      longitude: position.longitude,
+    );
+  }
+
+  final double latitude;
+  final double longitude;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'latitude': latitude,
+      'longitude': longitude,
+    };
   }
 }
 

@@ -1,33 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:medicall/app/routes.dart';
 import 'package:medicall/screens/patient/login/bloc/login_bloc.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends HookWidget {
+  RegisterScreen({super.key});
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  bool _obscurePassword = true;
-  String _email = '';
-  String _password = '';
-
-  void _submit(BuildContext context) {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-
-      context.read<LoginBloc>().add(
-            LoginButtonPressed(email: _email, password: _password),
-          );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    final emailController = useTextEditingController();
+    final passwordController = useTextEditingController();
+    final firstNameController = useTextEditingController();
+    final lastNameController = useTextEditingController();
+
+    void submit(BuildContext context) {
+      if (_formKey.currentState!.validate()) {
+        _formKey.currentState!.save();
+
+        context.read<LoginBloc>().add(
+              RegisterEvent(
+                email: emailController.text,
+                password: passwordController.text,
+                firstName: firstNameController.text,
+                lastName: lastNameController.text,
+              ),
+            );
+      }
+    }
+
     return BlocListener<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state is LoginSuccess) {
@@ -39,6 +42,12 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       },
       child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Register'),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.black,
+        ),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -46,19 +55,28 @@ class _LoginScreenState extends State<LoginScreen> {
               key: _formKey,
               child: Column(
                 children: [
-                  const SizedBox(height: 40),
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Sign In',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 40),
                   TextFormField(
+                    controller: firstNameController,
+                    decoration: const InputDecoration(
+                      hintText: 'First Name',
+                      prefixIcon: Icon(Icons.person_outline),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.name,
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: lastNameController,
+                    decoration: const InputDecoration(
+                      hintText: 'Last Name',
+                      prefixIcon: Icon(Icons.person_outline),
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.name,
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: emailController,
                     decoration: const InputDecoration(
                       hintText: 'Enter your email',
                       prefixIcon: Icon(Icons.email_outlined),
@@ -69,32 +87,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         (value == null || !value.contains('@'))
                             ? 'Enter a valid email'
                             : null,
-                    onSaved: (value) => _email = value!,
                   ),
                   const SizedBox(height: 20),
                   TextFormField(
-                    decoration: InputDecoration(
+                    controller: passwordController,
+                    keyboardType: TextInputType.visiblePassword,
+                    decoration: const InputDecoration(
                       hintText: 'Enter your password',
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                        ),
-                        onPressed: () {
-                          setState(
-                            () => _obscurePassword = !_obscurePassword,
-                          );
-                        },
-                      ),
+                      prefixIcon: Icon(Icons.lock_outline),
+                      border: OutlineInputBorder(),
                     ),
-                    obscureText: _obscurePassword,
                     validator: (value) => (value == null || value.length < 6)
                         ? 'Minimum 6 characters'
                         : null,
-                    onSaved: (value) => _password = value!,
                   ),
                   const SizedBox(height: 10),
                   Align(
@@ -115,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: CircularProgressIndicator(),
                         );
                       } else {
-                        return SubmitButton(onSubmit: _submit);
+                        return SubmitButton(onSubmit: submit);
                       }
                     },
                   ),
@@ -123,26 +128,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   const Text(
                     "Don't have an account? ",
                     style: TextStyle(fontSize: 14),
-                  ),
-                  const SignUpButton(),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 80,
-                        vertical: 14,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    onPressed: () {
-                      DoctorHomeRoute().go(context);
-                    },
-                    child: const Text(
-                      'Log in as Doctor',
-                      style: TextStyle(color: Colors.white),
-                    ),
                   ),
                 ],
               ),
@@ -173,24 +158,7 @@ class SubmitButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
         ),
       ),
-      child: const Text('Sign In as patient'),
-    );
-  }
-}
-
-class SignUpButton extends StatelessWidget {
-  const SignUpButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: () {
-        RegisterRoute().push<void>(context);
-      },
-      child: const Text(
-        'Sign up',
-        style: TextStyle(color: Colors.blue),
-      ),
+      child: const Text('Sign up'),
     );
   }
 }

@@ -21,12 +21,9 @@ class GeoBloc extends Bloc<GeoEvent, GeoState> {
     GeoSubscriptionRequested event,
     Emitter<GeoState> emit,
   ) async {
-    print('GeoBloc: _onSubscriptionRequested');
-
     await emit.forEach(
       geoRepository.getPositionStream,
       onData: (data) {
-        print('GeoBloc: onData');
         return GeoGotPosition(data);
       },
       onError: (error, stackTrace) {

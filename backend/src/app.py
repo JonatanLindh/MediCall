@@ -1,12 +1,14 @@
 from http.client import OK, UNAUTHORIZED
 import json
 from bcrypt import gensalt, hashpw
+import bcrypt
 from prisma import Base64, Prisma
-from prisma.models import Doctor
-from robyn import Response, Robyn
+from prisma.models import Doctor, Patient
+from robyn import Response, Robyn, WebSocket
 from robyn.types import Body
 
 app = Robyn(__file__)
+websocket = WebSocket(app, "/ws")
 prisma = Prisma(auto_register=True)
 
 
@@ -21,7 +23,7 @@ async def shutdown_handler() -> None:
         await prisma.disconnect()
 
 
-class CreateDoctorBody(Body):
+class RegisterBody(Body):
     firstName: str
     lastName: str
     email: str
@@ -29,7 +31,7 @@ class CreateDoctorBody(Body):
 
 
 @app.post("/api/doctors")
-async def register_doctor(request, body: CreateDoctorBody):
+async def register_doctor(request, body: RegisterBody):
     data = request.json()
 
     password = data["password"]
@@ -39,7 +41,7 @@ async def register_doctor(request, body: CreateDoctorBody):
 
     pass_hash = hashpw(password.encode("utf-8"), gensalt())
 
-    doctor = await Doctor.prisma().create(
+    await Doctor.prisma().create(
         data={
             "firstName": first_name,
             "lastName": last_name,
@@ -47,7 +49,32 @@ async def register_doctor(request, body: CreateDoctorBody):
             "password_hash": Base64.encode(pass_hash),
         },
     )
-    return doctor.model_dump_json(indent=2)
+
+
+@app.post("/api/patients/register")
+async def register_patient(request, body: RegisterBody):
+    data = request.json()
+    first_name = data["firstName"]
+    last_name = data["lastName"]
+    email = data["email"]
+    password = data["password"]
+
+    pass_hash = hashpw(password.encode("utf-8"), gensalt())
+
+    await Patient.prisma().create(
+        data={
+            "firstName": first_name,
+            "lastName": last_name,
+            "email": email,
+            "password_hash": Base64.encode(pass_hash),
+        },
+    )
+
+    return Response(
+        status_code=201,
+        headers={},
+        description="Patient registered successfully",
+    )
 
 
 class UpdateDoctorLocationBody(Body):
@@ -58,7 +85,6 @@ class UpdateDoctorLocationBody(Body):
 # TODO add auth
 @app.patch("/api/doctors/:id/location")
 async def update_doctor_location(request, body: UpdateDoctorLocationBody):
-    print("hej")
     id = request.path_params["id"]
     data = request.json()
     latitude = data["latitude"]
@@ -94,27 +120,29 @@ async def get_doctor_location(request):
         return Response(status_code=404, description="Doctor not found", headers={})
 
 
-# user list
-users = {
-    "test@example.com": "password123",
-    "admin@example.com": "adminpass",
-}
+class LoginBody(Body):
+    email: str
+    password: str
 
 
-@app.post("/api/login")
-async def login(request):
+@app.post("/api/patients/login")
+async def login(request, body: LoginBody):
     data = request.json()
     email = data.get("email")
     password = data.get("password")
 
-    if email in users and users[email] == password:
-        print("Login success")
+    user = await Patient.prisma().find_first(
+        where={"email": email},
+    )
+
+    if user and bcrypt.checkpw(
+        password.encode("utf-8"), Base64.decode(user.password_hash)
+    ):
+        print(f"User {user.id} logged in")
         return Response(status_code=OK, headers={}, description="OK")
-    else:
-        print("Login failed")
-        return Response(
-            status_code=UNAUTHORIZED, headers={}, description="Unauthorized"
-        )
+
+    print("Invalid credentials")
+    return Response(status_code=UNAUTHORIZED, headers={}, description="Unauthorized")
 
 
 if __name__ == "__main__":

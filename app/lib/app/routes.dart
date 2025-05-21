@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicall/screens/dashboard/dashboard_screen.dart';
 import 'package:medicall/screens/doctor/doctor.dart';
+import 'package:medicall/screens/patient/login/view/register_screen.dart';
 import 'package:medicall/screens/patient/patient.dart';
 
 part 'routes.g.dart';
@@ -23,6 +24,7 @@ final GoRouter router = GoRouter(
   path: '/',
   routes: [
     TypedGoRoute<LoginRoute>(path: '/login'),
+    TypedGoRoute<RegisterRoute>(path: '/register'),
     TypedGoRoute<DashboardRoute>(path: '/dashboard'),
   ],
 )
@@ -39,6 +41,14 @@ class LoginRoute extends GoRouteData {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const LoginScreen();
+  }
+}
+
+@immutable
+class RegisterRoute extends GoRouteData {
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return RegisterScreen();
   }
 }
 
