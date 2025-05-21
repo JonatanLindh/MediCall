@@ -11,11 +11,7 @@ class DoctorHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Wrap the home screen with BlocProvider and provide the doctor ID
-    return BlocProvider(
-      create: (_) => DoctorReportsCubit(),
-      child: const DoctorHomeScreenContent(),
-    );
+    return const DoctorHomeScreenContent();
   }
 }
 

@@ -15,19 +15,17 @@ class DoctorReportsScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final searchController = useTextEditingController();
-    // TODO: Fetch initial reports from backend
+    final cubit = context.read<DoctorReportsCubit>();
+    
+    useEffect(() {
+      void listener()=> cubit.searchChanged(searchController.text);
+      searchController.addListener(listener);
+      searchController.addListener(() {
+        cubit.searchChanged(searchController.text);
+      });
+    }, [searchController]);
 
-    return BlocProvider(
-      create: (context) {
-        final cubit = DoctorReportsCubit();
-
-        searchController.addListener(() {
-          cubit.searchChanged(searchController.text);
-        });
-
-        return cubit;
-      },
-      child: Scaffold(
+      return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: const Text('Reports'),
@@ -202,8 +200,8 @@ class DoctorReportsScreen extends HookWidget {
             );
           },
         ),
-      ),
-    );
+      );
+
   }
 }
 
