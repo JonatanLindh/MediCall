@@ -8,7 +8,7 @@ class PatientIdScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Patient ID')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: ListView(
           children: const [
             Center(
@@ -72,8 +72,8 @@ class PatientIdScreen extends StatelessWidget {
 
 
 class _FormRow extends StatelessWidget {
-  final List<Widget> fields;
   const _FormRow({required this.fields});
+  final List<Widget> fields;
 
   @override
   Widget build(BuildContext context) {
@@ -86,8 +86,8 @@ class _FormRow extends StatelessWidget {
 }
 
 class _DropdownField extends StatelessWidget {
-  final String label;
   const _DropdownField({required this.label});
+  final String label;
 
   @override
   Widget build(BuildContext context) {
@@ -100,8 +100,8 @@ class _DropdownField extends StatelessWidget {
 }
 
 class _TextField extends StatelessWidget {
-  final String label;
   const _TextField({required this.label});
+  final String label;
 
   @override
   Widget build(BuildContext context) {

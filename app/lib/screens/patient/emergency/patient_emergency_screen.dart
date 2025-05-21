@@ -15,13 +15,15 @@ class TimelineScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+      ),
       backgroundColor: appTheme.indigo50,
       body: Container(
         width: double.maxFinite,
         padding: const EdgeInsets.only(left: 30, top: 56, right: 30),
         child: Column(
           children: [
-            const SizedBox(height: 40),
             Text(
               "You're not alone \n — help is coming",
               maxLines: 2,
