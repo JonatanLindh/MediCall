@@ -33,8 +33,13 @@ class App extends StatelessWidget {
           child: MaterialApp.router(
             routerConfig: router,
             theme: ThemeData(
-              appBarTheme: AppBarTheme(
-                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              appBarTheme: const AppBarTheme(
+                backgroundColor: Colors.transparent,
+                titleTextStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 40,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               useMaterial3: true,
             ),
