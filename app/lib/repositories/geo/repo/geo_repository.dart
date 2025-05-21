@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
-import 'package:medicall/main.dart';
+import 'package:medicall/contants/api.dart';
 
 class GeoRepository {
   Future<bool> _handlePermission() async {

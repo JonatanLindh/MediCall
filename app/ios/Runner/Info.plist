@@ -56,6 +56,17 @@
 		<!-- PERMISSIONS -->
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>This app needs access to location when open.</string>
+
+		<key>NSCameraUsageDescription</key>
+		<string>$(PRODUCT_NAME) uses your camera</string>
+
+		<key>NSMicrophoneUsageDescription</key>
+		<string>$(PRODUCT_NAME) uses your microphone</string>
+
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>audio</string>
+		</array>
 		<!-- PERMISSIONS -->
 	</dict>
 </plist>
