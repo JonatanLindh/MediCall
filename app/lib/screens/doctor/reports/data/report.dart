@@ -59,7 +59,7 @@ final List<Report> fakeReports = [
     name: 'Anna Ericsson',
     description: 'Suspected heart attack',
     time: '09:34 AM',
-    assignedDoctorId: 'Dr. Johan Nilsson', // not assigned
+    assignedDoctorId: 'Dr. Johan Nilsson', 
     completed: false, 
     statusStep: TaskStatusStep.departure,
   ),
@@ -86,7 +86,7 @@ final List<Report> fakeReports = [
     name: 'Erik Andersson',
     description: 'Severe headache',
     time: 'April 14',
-    assignedDoctorId: null, 
+    assignedDoctorId: null, // not assigned
     completed: false, 
     statusStep: TaskStatusStep.departure,
   ),

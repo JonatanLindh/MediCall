@@ -95,6 +95,7 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
           } else if (_statusStep == TaskStatusStep.complete) {
             // Mark current task as completed and update Cubit state
             context.read<DoctorReportsCubit>().setCompleted(id: currentTask.id, value: true);
+            // TODO: Send API request to mark task as completed on the backend
 
             // Call external callback (if any)
             widget.onStatusChanged?.call(currentTask.id, _statusStep);
@@ -115,7 +116,7 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
               id: currentTask.id,
               status: _statusStep,
               );          
-
+          // TODO: Send API request to update task status on the backend
           // Trigger callback on every status change
           widget.onStatusChanged?.call(currentTask.id, _statusStep);
         });

@@ -1,5 +1,5 @@
 part of 'doctor_reports_cubit.dart';
-
+// TODO: fetch data from backend API
 enum ReportStatus { unassigned, assigned, completed, all }
 
 class DoctorReportsState {

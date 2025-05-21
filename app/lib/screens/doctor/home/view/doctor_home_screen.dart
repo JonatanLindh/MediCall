@@ -25,8 +25,8 @@ class DoctorHomeScreenContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const doctorName = 'Dr. Nilsson';
-    const nextPatientName = 'Anna Ericsson';
-    const nextAppointmentTime = 'April 15, 10:00';
+    const nextPatientName = 'Anna Ericsson';//TODO: Request from API, task name
+    const nextAppointmentTime = 'April 15, 10:00';//TODO: Request from API, task time
 
     final tasks = [
       {'icon': Icons.description, 'text': "Review Sven's Report"},
@@ -58,19 +58,6 @@ class DoctorHomeScreenContent extends StatelessWidget {
             Text(nextAppointmentTime, style: theme.textTheme.bodyLarge),
             const SizedBox(height: 40),
             Center(
-              //child: ElevatedButton(
-              //  onPressed: () {
-              //    // Go to report
-             //     final cubit=context.read<DoctorReportsCubit>();
-              //  },
-              //  style: ElevatedButton.styleFrom(
-              //    backgroundColor: Colors.blue,
-              //    shape: RoundedRectangleBorder(
-              //      borderRadius: BorderRadius.circular(25),
-              //    ),
-              //    padding:
-              //        const EdgeInsets.symmetric(horizontal: 80, vertical: 16),
-              //  ),
                 child: AssignedTaskStatusButton(
                   currentDoctorId: 'Dr. Johan Nilsson',// Replace with actual doctor ID
                   onStatusChanged: (reportId, status) {

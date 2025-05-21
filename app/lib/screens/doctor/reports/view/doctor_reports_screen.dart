@@ -15,6 +15,7 @@ class DoctorReportsScreen extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final searchController = useTextEditingController();
+    // TODO: Fetch initial reports from backend
 
     return BlocProvider(
       create: (context) {

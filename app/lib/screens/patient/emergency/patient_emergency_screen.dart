@@ -29,6 +29,8 @@ class TimelineScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: May an API call to fetch the latest report data
+    // For now, this code relies on data already loaded in DoctorReportsCubit
     final report = context.select<DoctorReportsCubit, Report?>(
       (cubit) {
         try {
