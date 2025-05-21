@@ -5,8 +5,8 @@ import 'package:medicall/screens/doctor/reports/data/report.dart';
 part 'doctor_reports_state.dart';
 
 class DoctorReportsCubit extends Cubit<DoctorReportsState> {
-  DoctorReportsCubit() : super(DoctorReportsInitial()){print('DoctorReportsCubit created！！！: $this');}
-  
+  DoctorReportsCubit() : super(DoctorReportsInitial())//{print('DoctorReportsCubit created！！！: $this');  }
+  ;
   // TODO: Add method to fetch reports from backend API
   void filterStatus(ReportStatus status) {
     emit(state.copyWith(statusFilter: status));

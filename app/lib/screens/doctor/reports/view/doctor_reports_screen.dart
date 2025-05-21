@@ -154,6 +154,15 @@ class DoctorReportsScreen extends HookWidget {
                           const SizedBox(height: 8),
                           if (isAssigned)
                             if (isAssignedToMe)
+                              if(report.completed)
+                              // If the report is assigned to me and completed, show Doctor's name
+                              Text(
+                                "${report.assignedDoctorId}",
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                ),
+                              )
+                              else
                               TextButton(
                                 onPressed: () {
                                   context.read<DoctorReportsCubit>().unassignDoctor(
