@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/feedback_bloc.dart';
-import '../bloc/feedback_event.dart';
-import '../bloc/feedback_state.dart';
+import 'package:medicall/screens/patient/feedback/bloc/feedback_bloc.dart';
+import 'package:medicall/screens/patient/feedback/bloc/feedback_event.dart';
+import 'package:medicall/screens/patient/feedback/bloc/feedback_state.dart';
 
 class FeedbackScreen extends StatelessWidget {
   const FeedbackScreen({super.key});
@@ -14,7 +14,7 @@ class FeedbackScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(title: const Text('Feedback')),
         body: const Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: EdgeInsets.all(20),
           child: _FeedbackForm(),
         ),
       ),

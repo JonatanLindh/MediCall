@@ -1,9 +1,14 @@
 // https://pub.dev/documentation/go_router/latest/topics/Type-safe%20routes-topic.html
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:medicall/repositories/geo/repo/geo_repository.dart';
+import 'package:medicall/screens/call/call_screen.dart';
 import 'package:medicall/screens/dashboard/dashboard_screen.dart';
 import 'package:medicall/screens/doctor/doctor.dart';
+import 'package:medicall/screens/patient/doctor_location/bloc/doctor_location_bloc.dart';
+import 'package:medicall/screens/patient/login/view/register_screen.dart';
 import 'package:medicall/screens/patient/patient.dart';
 import 'package:medicall/screens/doctor/reports/data/report.dart';
 
@@ -15,7 +20,9 @@ final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 // Don't have to touch to add routes, `$appRoutes` will be regenerated
 final GoRouter router = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/',
+
+  initialLocation: '/login',
+
   routes: $appRoutes,
 );
 
@@ -24,7 +31,8 @@ final GoRouter router = GoRouter(
   path: '/',
   routes: [
     TypedGoRoute<LoginRoute>(path: '/login'),
-    TypedGoRoute<DashboardRoute>(path: '/dashboard'),
+    TypedGoRoute<RegisterRoute>(path: '/register'),
+    TypedGoRoute<CallRoute>(path: '/call'),
   ],
 )
 @immutable
@@ -44,10 +52,18 @@ class LoginRoute extends GoRouteData {
 }
 
 @immutable
-class DashboardRoute extends GoRouteData {
+class RegisterRoute extends GoRouteData {
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const DashboardScreen();
+    return RegisterScreen();
+  }
+}
+
+@immutable
+class CallRoute extends GoRouteData {
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const CallScreen();
   }
 }
 
@@ -132,7 +148,47 @@ class DoctorProfileRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<PatientIdRoute>(path: '/patient-id')
+@TypedShellRoute<PatientShellRoute>(
+  routes: [
+    TypedGoRoute<PatientDashboardRoute>(path: '/patient/dashboard'),
+    TypedGoRoute<PatientIdRoute>(path: '/patient/id'),
+    TypedGoRoute<PatientHealthDetailRoute>(path: '/patient/details'),
+    TypedGoRoute<PatientTimelineRoute>(path: '/patient/timeline'),
+  ],
+)
+@immutable
+class PatientShellRoute extends ShellRouteData {
+  const PatientShellRoute();
+
+  static final GlobalKey<NavigatorState> $navigatorKey = shellNavigatorKey;
+
+  @override
+  Widget builder(BuildContext context, GoRouterState state, Widget navigator) {
+    return BlocProvider(
+      create: (context) => DoctorLocationBloc(
+        geoRepository: context.read<GeoRepository>(),
+      )..add(DoctorLocationSubscribe(doctorId: 'cmav7q0450000woy0jw7em246')),
+      child: navigator,
+    );
+  }
+}
+
+@immutable
+class PatientDashboardRoute extends GoRouteData {
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const DashboardScreen();
+  }
+}
+
+@immutable
+class PatientTimelineRoute extends GoRouteData {
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return TimelineScreen();
+  }
+}
+
 @immutable
 class PatientIdRoute extends GoRouteData {
   @override
@@ -141,16 +197,14 @@ class PatientIdRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<HealthDetailRoute>(path: '/health-detail')
 @immutable
-class HealthDetailRoute extends GoRouteData {
+class PatientHealthDetailRoute extends GoRouteData {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const HealthDetailScreen();
   }
 }
 
-@TypedGoRoute<FeedbackRoute>(path: '/feedback')
 @immutable
 class FeedbackRoute extends GoRouteData {
   @override
