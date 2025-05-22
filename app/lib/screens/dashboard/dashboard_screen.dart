@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicall/app/routes.dart';
+import 'package:medicall/repositories/doctor/doctor_repository.dart';
 import 'package:medicall/repositories/geo/geo.dart';
-import 'package:medicall/screens/patient/doctor_location/bloc/doctor_location_bloc.dart';
+import 'package:medicall/screens/dashboard/cubit/doctor_picker_cubit.dart';
+import 'package:medicall/screens/patient/doctor_location/bloc/doctor_bloc.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -17,6 +19,8 @@ class DashboardScreen extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
+            const SizedBox(height: 20),
+            const DoctorSelector(),
             const SizedBox(height: 20),
             Container(
               width: double.infinity,
@@ -82,9 +86,9 @@ class DashboardScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  BlocBuilder<DoctorLocationBloc, DoctorLocationState>(
+                  BlocBuilder<DoctorBloc, DoctorState>(
                     builder: (context, state) {
-                      if (state is DoctorLocationAvailable) {
+                      if (state is DoctorAvailable) {
                         return PositionShower(
                           title: 'Doctor Location',
                           position: state.position,
@@ -141,6 +145,68 @@ class PositionShower extends StatelessWidget {
           style: const TextStyle(fontSize: 16),
         ),
       ],
+    );
+  }
+}
+
+class DoctorSelector extends StatelessWidget {
+  const DoctorSelector({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return RepositoryProvider<DoctorRepository>(
+      create: (context) => DoctorRepository(),
+      child: Builder(
+        builder: (context) {
+          return BlocProvider<DoctorPickerCubit>(
+            create: (context) => DoctorPickerCubit(
+              RepositoryProvider.of<DoctorRepository>(context),
+            )..getAllDoctors(),
+            child: BlocBuilder<DoctorPickerCubit, DoctorPickerState>(
+              builder: (context, state) {
+                final selectedDoctor = state.doctor;
+                var doctors = <Doctor>[];
+                if (state is DoctorPickerDoctors) {
+                  doctors = state.doctors;
+                }
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Choose a Doctor:',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButton<Doctor>(
+                      value: selectedDoctor,
+                      hint: const Text('Select a doctor'),
+                      isExpanded: true,
+                      items: doctors.map((doctor) {
+                        return DropdownMenuItem<Doctor>(
+                          value: doctor,
+                          child: Text(doctor.name),
+                        );
+                      }).toList(),
+                      onChanged: (doctor) {
+                        if (doctor != null) {
+                          context.read<DoctorPickerCubit>().setDoctor(doctor);
+                        }
+                      },
+                    ),
+                    if (selectedDoctor != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text('Selected: ${selectedDoctor.name}'),
+                      ),
+                  ],
+                );
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 }

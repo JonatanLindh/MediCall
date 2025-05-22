@@ -144,9 +144,9 @@ class PatientShellRoute extends ShellRouteData {
   @override
   Widget builder(BuildContext context, GoRouterState state, Widget navigator) {
     return BlocProvider(
-      create: (context) => DoctorLocationBloc(
+      create: (context) => DoctorBloc(
         geoRepository: context.read<GeoRepository>(),
-      )..add(DoctorLocationSubscribe(doctorId: 'cmav7q0450000woy0jw7em246')),
+      ),
       child: navigator,
     );
   }
