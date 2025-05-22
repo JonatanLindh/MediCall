@@ -23,7 +23,7 @@ class DashboardScreen extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 20),
               child: ElevatedButton(
                 onPressed: () {
-                  // NAVIGATE TO CALL SCREEN
+                  CallRoute().push<void>(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
