@@ -77,7 +77,8 @@ class DashboardScreen extends StatelessWidget {
                 ),
               ),
               onPressed: () {
-                PatientTimelineRoute().push<void>(context);
+                const PatientTimelineRoute(reportId: '1', status: 'departure')
+                    .push<void>(context);
               },
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

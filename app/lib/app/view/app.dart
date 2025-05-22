@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicall/app/routes.dart';
 import 'package:medicall/l10n/l10n.dart';
 import 'package:medicall/repositories/geo/geo.dart';
+import 'package:medicall/screens/doctor/reports/cubit/doctor_reports_cubit.dart';
 import 'package:medicall/screens/patient/login/bloc/login_bloc.dart';
 
 class App extends StatelessWidget {
@@ -23,6 +24,9 @@ class App extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => LoginBloc(),
+          ),
+          BlocProvider<DoctorReportsCubit>(
+            create: (_) => DoctorReportsCubit(),
           ),
         ],
         child: BlocListener<GeoBloc, GeoState>(

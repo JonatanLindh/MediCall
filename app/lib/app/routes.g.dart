@@ -8,7 +8,6 @@ part of 'routes.dart';
 
 List<RouteBase> get $appRoutes => [
       $homeRoute,
-      $timelineRoute,
       $doctorShellRoute,
       $patientShellRoute,
     ];
@@ -88,31 +87,6 @@ extension $CallRouteExtension on CallRoute {
 
   String get location => GoRouteData.$location(
         '/call',
-      );
-
-  void go(BuildContext context) => context.go(location);
-
-  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
-
-  void pushReplacement(BuildContext context) =>
-      context.pushReplacement(location);
-
-  void replace(BuildContext context) => context.replace(location);
-}
-
-RouteBase get $timelineRoute => GoRouteData.$route(
-      path: '/timeline/:reportId/:status',
-      factory: $TimelineRouteExtension._fromState,
-    );
-
-extension $TimelineRouteExtension on TimelineRoute {
-  static TimelineRoute _fromState(GoRouterState state) => TimelineRoute(
-        reportId: state.pathParameters['reportId']!,
-        status: state.pathParameters['status']!,
-      );
-
-  String get location => GoRouteData.$location(
-        '/timeline/${Uri.encodeComponent(reportId)}/${Uri.encodeComponent(status)}',
       );
 
   void go(BuildContext context) => context.go(location);
@@ -241,7 +215,7 @@ RouteBase get $patientShellRoute => ShellRouteData.$route(
           factory: $PatientHealthDetailRouteExtension._fromState,
         ),
         GoRouteData.$route(
-          path: '/patient/timeline',
+          path: '/patient/timeline/:reportId/:status',
           factory: $PatientTimelineRouteExtension._fromState,
         ),
       ],
@@ -307,10 +281,13 @@ extension $PatientHealthDetailRouteExtension on PatientHealthDetailRoute {
 
 extension $PatientTimelineRouteExtension on PatientTimelineRoute {
   static PatientTimelineRoute _fromState(GoRouterState state) =>
-      PatientTimelineRoute();
+      PatientTimelineRoute(
+        reportId: state.pathParameters['reportId']!,
+        status: state.pathParameters['status']!,
+      );
 
   String get location => GoRouteData.$location(
-        '/patient/timeline',
+        '/patient/timeline/${Uri.encodeComponent(reportId)}/${Uri.encodeComponent(status)}',
       );
 
   void go(BuildContext context) => context.go(location);

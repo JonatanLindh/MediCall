@@ -7,10 +7,10 @@ import 'package:medicall/repositories/geo/repo/geo_repository.dart';
 import 'package:medicall/screens/call/call_screen.dart';
 import 'package:medicall/screens/dashboard/dashboard_screen.dart';
 import 'package:medicall/screens/doctor/doctor.dart';
+import 'package:medicall/screens/doctor/reports/data/report.dart';
 import 'package:medicall/screens/patient/doctor_location/bloc/doctor_location_bloc.dart';
 import 'package:medicall/screens/patient/login/view/register_screen.dart';
 import 'package:medicall/screens/patient/patient.dart';
-import 'package:medicall/screens/doctor/reports/data/report.dart';
 
 part 'routes.g.dart';
 
@@ -20,9 +20,7 @@ final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 // Don't have to touch to add routes, `$appRoutes` will be regenerated
 final GoRouter router = GoRouter(
   navigatorKey: rootNavigatorKey,
-
   initialLocation: '/login',
-
   routes: $appRoutes,
 );
 
@@ -67,35 +65,6 @@ class CallRoute extends GoRouteData {
   }
 }
 
-@TypedGoRoute<TimelineRoute>(
-  path: '/timeline/:reportId/:status',
-)
-@immutable
-class TimelineRoute extends GoRouteData {
-  final String reportId;
-  final String status;
-
-  const TimelineRoute({
-    required this.reportId,
-    required this.status,
-  });
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    
-    final currentStatus = TaskStatusStep.values.firstWhere(
-      (e) => e.name == status,
-      orElse: () => TaskStatusStep.departure,
-    );
-
-    return TimelineScreen(
-      reportId: reportId,
-      currentStatus: currentStatus,
-    );
-  }
-}
-
-
 @TypedShellRoute<DoctorShellRoute>(
   routes: [
     TypedGoRoute<DoctorHomeRoute>(path: '/doctor/home'),
@@ -120,7 +89,7 @@ class DoctorShellRoute extends ShellRouteData {
 class DoctorHomeRoute extends GoRouteData {
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return DoctorHomeScreen();
+    return const DoctorHomeScreen();
   }
 }
 
@@ -153,7 +122,9 @@ class DoctorProfileRoute extends GoRouteData {
     TypedGoRoute<PatientDashboardRoute>(path: '/patient/dashboard'),
     TypedGoRoute<PatientIdRoute>(path: '/patient/id'),
     TypedGoRoute<PatientHealthDetailRoute>(path: '/patient/details'),
-    TypedGoRoute<PatientTimelineRoute>(path: '/patient/timeline'),
+    TypedGoRoute<PatientTimelineRoute>(
+      path: '/patient/timeline/:reportId/:status',
+    ),
   ],
 )
 @immutable
@@ -183,9 +154,24 @@ class PatientDashboardRoute extends GoRouteData {
 
 @immutable
 class PatientTimelineRoute extends GoRouteData {
+  const PatientTimelineRoute({
+    required this.reportId,
+    required this.status,
+  });
+  final String reportId;
+  final String status;
+
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return TimelineScreen();
+    final currentStatus = TaskStatusStep.values.firstWhere(
+      (e) => e.name == status,
+      orElse: () => TaskStatusStep.departure,
+    );
+
+    return TimelineScreen(
+      reportId: reportId,
+      currentStatus: currentStatus,
+    );
   }
 }
 

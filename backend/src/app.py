@@ -145,8 +145,9 @@ async def login(request, body: LoginBody):
     return Response(status_code=UNAUTHORIZED, headers={}, description="Unauthorized")
 
 
-from livekit import protocol, api
+from livekit import api
 import random
+
 
 @app.get("/api/getvideotoken")
 async def getvideotoken(request):
@@ -157,32 +158,40 @@ async def getvideotoken(request):
     LK_API_SECRET = "api_secret"
     identity = str(random.randint(1000, 9999))
     print(identity)
-    token = api.AccessToken(api_key=LK_API_KEY, api_secret=LK_API_SECRET)  # 1 hour validity
+    token = api.AccessToken(
+        api_key=LK_API_KEY, api_secret=LK_API_SECRET
+    )  # 1 hour validity
     token.with_identity(identity=identity)
     token.with_name(name=identity)
-    token.with_grants(api.VideoGrants(
-        room_join=True,
-        room="my-room",
-    ))
-    
-    videotoken = token.to_jwt()
-    
-    print (videotoken)
+    token.with_grants(
+        api.VideoGrants(
+            room_join=True,
+            room="my-room",
+        )
+    )
 
-    return Response(status_code=OK, headers={}, description=videotoken )
+    videotoken = token.to_jwt()
+
+    print(videotoken)
+
+    return Response(status_code=OK, headers={}, description=videotoken)
 
 
 # NETWORKIP = "10.0.2.65"
-NETWORKIP = "192.168.9.51"
+NETWORKIP = "100.80.52.9"
+
+
 async def createRoom(roomName):
     try:
         LK_API_KEY = "api_key"
         LK_API_SECRET = "api_secret"
         # LIVEKITURL = "https://l6mmsls1-7880.euw.devtunnels.ms/"
         LIVEKITURL = f"http://{NETWORKIP}:7880"
-        lkapi = api.LiveKitAPI(LIVEKITURL,LK_API_KEY,LK_API_SECRET)
-        rooms = (await lkapi.room.list_rooms(api.ListRoomsRequest(names=[roomName]))).rooms
-        if (len(rooms) > 0): 
+        lkapi = api.LiveKitAPI(LIVEKITURL, LK_API_KEY, LK_API_SECRET)
+        rooms = (
+            await lkapi.room.list_rooms(api.ListRoomsRequest(names=[roomName]))
+        ).rooms
+        if len(rooms) > 0:
             return
 
         room_info = await lkapi.room.create_room(

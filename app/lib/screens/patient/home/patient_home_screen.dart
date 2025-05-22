@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:medicall/app/routes.dart';
 
@@ -28,10 +26,13 @@ class HomeScreen extends StatelessWidget {
               },
               child: const Text('Click me to Login'),
             ),
-            ElevatedButton(onPressed: (){
-              TimelineRoute(reportId: '1', status: 'departure').go(context);
-            }, child: const Text('Go to Timeline')),
-              
+            ElevatedButton(
+              onPressed: () {
+                const PatientTimelineRoute(reportId: '1', status: 'departure')
+                    .go(context);
+              },
+              child: const Text('Go to Timeline'),
+            ),
           ],
         ),
       ),
