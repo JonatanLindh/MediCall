@@ -104,8 +104,6 @@ async def update_doctor_location(request, body: UpdateDoctorLocationBody):
     latitude = data["latitude"]
     longitude = data["longitude"]
 
-    print(f"Updating doctor {id} location to {latitude}, {longitude}")
-
     await Doctor.prisma().update(
         where={"id": id},
         data={

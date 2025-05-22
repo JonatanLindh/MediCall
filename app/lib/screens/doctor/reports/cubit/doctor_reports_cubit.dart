@@ -36,11 +36,6 @@ class DoctorReportsCubit extends Cubit<DoctorReportsState> {
       return report;
     }).toList();
 
-    setDoctorStatus(
-      doctorId: doctorId,
-      status: value ? 'completed' : 'not completed',
-    );
-
     emit(
       state.copyWith(
         reports: updatedReports,
@@ -76,13 +71,22 @@ class DoctorReportsCubit extends Cubit<DoctorReportsState> {
     );
   }
 
-  void setStatusStep({required String id, required TaskStatusStep status}) {
+  Future<void> setStatusStep({
+    required String id,
+    required TaskStatusStep oldStatus,
+    required TaskStatusStep status,
+  }) async {
     final updatedReports = state.reports.map((report) {
       if (report.id == id) {
         return report.copyWith(statusStep: status);
       }
       return report;
     }).toList();
+
+    await setDoctorStatus(
+      doctorId: doctorId,
+      status: oldStatus.toString(),
+    );
 
     emit(
       state.copyWith(reports: updatedReports),
@@ -94,6 +98,7 @@ Future<void> setDoctorStatus({
   required String doctorId,
   required String status,
 }) async {
+  log('Setting doctor status: $status for doctorId: $doctorId');
   await http
       .patch(
     Uri.parse('$apiUrl/doctors/$doctorId/status'),
@@ -104,6 +109,7 @@ Future<void> setDoctorStatus({
   )
       .then((response) {
     if (response.statusCode == 200) {
+      log('Doctor status updated successfully: $status');
       // Successfully updated
     } else {
       // Handle error

@@ -86,6 +86,8 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
     return ElevatedButton(
       onPressed: () {
         setState(() {
+          final oldStatusStep = _statusStep;
+
           if (_statusStep == TaskStatusStep.departure) {
             _statusStep = TaskStatusStep.arrival;
           } else if (_statusStep == TaskStatusStep.arrival) {
@@ -113,9 +115,10 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
           }
           context.read<DoctorReportsCubit>().setStatusStep(
                 id: currentTask.id,
+                oldStatus: oldStatusStep,
                 status: _statusStep,
               );
-          // TODO: Send API request to update task status on the backend
+
           // Trigger callback on every status change
           widget.onStatusChanged?.call(currentTask.id, _statusStep);
         });
@@ -131,8 +134,10 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
         children: [
           Text(currentTask.name, style: const TextStyle(fontSize: 20)),
           const SizedBox(height: 4),
-          Text(statusText,
-              style: const TextStyle(fontSize: 18, color: Colors.blue)),
+          Text(
+            statusText,
+            style: const TextStyle(fontSize: 18, color: Colors.blue),
+          ),
           const SizedBox(height: 4),
           Row(
             mainAxisSize: MainAxisSize.min,

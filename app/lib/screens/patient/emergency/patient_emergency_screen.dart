@@ -4,26 +4,33 @@ import 'package:medicall/screens/doctor/reports/cubit/doctor_reports_cubit.dart'
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicall/screens/doctor/reports/data/report.dart';
 
-
 //enum TaskStatusStep { departure, arrival, complete }
 
 class TimelineScreen extends StatelessWidget {
+  const TimelineScreen({
+    required this.currentStatus,
+    required this.reportId,
+    super.key,
+  });
   final TaskStatusStep currentStatus;
   final String reportId;
-  const TimelineScreen({
-    Key? key,
-    required this.currentStatus, required this.reportId,
-  }) : super(key: key);
-
-
 
   List<TimelineStep> getStepFromStatus(TaskStatusStep status) {
     return [
       const TimelineStep('Receiving the emergency call', isActive: true),
       const TimelineStep('Dispatching emergency resources', isActive: true),
-      TimelineStep('Help is on the way', isActive: status.index >= TaskStatusStep.departure.index),
-      TimelineStep('Arrival at the scene', isActive: status.index >= TaskStatusStep.arrival.index),
-      TimelineStep('Care completed', isActive: status.index >= TaskStatusStep.complete.index),
+      TimelineStep(
+        'Help is on the way',
+        isActive: status.index >= TaskStatusStep.departure.index,
+      ),
+      TimelineStep(
+        'Arrival at the scene',
+        isActive: status.index >= TaskStatusStep.arrival.index,
+      ),
+      TimelineStep(
+        'Care completed',
+        isActive: status.index >= TaskStatusStep.complete.index,
+      ),
     ];
   }
 
@@ -43,8 +50,8 @@ class TimelineScreen extends StatelessWidget {
       },
     );
     if (report == null) {
-      return Scaffold(
-        body: Center(child: Text("Report not found")),
+      return const Scaffold(
+        body: Center(child: Text('Report not found')),
       );
     }
 
