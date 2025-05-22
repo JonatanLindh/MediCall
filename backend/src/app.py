@@ -4,6 +4,7 @@ from bcrypt import gensalt, hashpw
 import bcrypt
 from prisma import Base64, Prisma
 from prisma.models import Doctor, Patient
+from prisma.bases import BaseDoctor
 from robyn import Response, Robyn, WebSocket
 from robyn.types import Body
 
@@ -49,6 +50,19 @@ async def register_doctor(request, body: RegisterBody):
             "password_hash": Base64.encode(pass_hash),
         },
     )
+
+
+class DoctorNoPassword(BaseDoctor):
+    id: str
+    firstName: str
+    lastName: str
+    email: str
+
+
+@app.get("/api/doctors")
+async def get_doctors(request):
+    doctors = await DoctorNoPassword.prisma().find_many()
+    return json.dumps(doctors, indent=2)
 
 
 @app.post("/api/patients/register")
@@ -113,6 +127,44 @@ async def get_doctor_location(request):
             {
                 "latitude": doctor.latitude,
                 "longitude": doctor.longitude,
+            },
+            indent=2,
+        )
+    else:
+        return Response(status_code=404, description="Doctor not found", headers={})
+
+
+class UpdateDoctorStatusBody(Body):
+    status: str
+
+
+# TODO add auth
+@app.patch("/api/doctors/:id/status")
+async def update_doctor_status(request, body: UpdateDoctorStatusBody):
+    id = request.path_params["id"]
+    data = request.json()
+    status = data["status"]
+
+    print(f"Updating doctor {id} status to {status}")
+
+    await Doctor.prisma().update(
+        where={"id": id},
+        data={
+            "status": status,
+        },
+    )
+
+
+@app.get("/api/doctors/:id/status")
+async def get_doctor_status(request):
+    id = request.path_params["id"]
+    doctor = await Doctor.prisma().find_unique(
+        where={"id": id},
+    )
+    if doctor:
+        return json.dumps(
+            {
+                "status": doctor.status,
             },
             indent=2,
         )

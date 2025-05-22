@@ -1,7 +1,13 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
+import 'package:http/http.dart' as http;
+import 'package:medicall/contants/api.dart';
 import 'package:medicall/screens/doctor/reports/data/report.dart';
 
 part 'doctor_reports_state.dart';
+
+const String doctorId = 'cmav7q0450000woy0jw7em246';
 
 class DoctorReportsCubit extends Cubit<DoctorReportsState> {
   DoctorReportsCubit()
@@ -29,6 +35,11 @@ class DoctorReportsCubit extends Cubit<DoctorReportsState> {
       }
       return report;
     }).toList();
+
+    setDoctorStatus(
+      doctorId: doctorId,
+      status: value ? 'completed' : 'not completed',
+    );
 
     emit(
       state.copyWith(
@@ -76,5 +87,40 @@ class DoctorReportsCubit extends Cubit<DoctorReportsState> {
     emit(
       state.copyWith(reports: updatedReports),
     );
+  }
+}
+
+Future<void> setDoctorStatus({
+  required String doctorId,
+  required String status,
+}) async {
+  await http
+      .patch(
+    Uri.parse('$apiUrl/doctors/$doctorId/status'),
+    headers: <String, String>{
+      'Content-Type': 'application/json',
+    },
+    body: '{"status": "$status"}',
+  )
+      .then((response) {
+    if (response.statusCode == 200) {
+      // Successfully updated
+    } else {
+      // Handle error
+      log('Failed to update doctor status: ${response.statusCode}');
+    }
+  });
+}
+
+Future<String> getDoctorStatus(String doctorId) async {
+  final response = await http.get(
+    Uri.parse('$apiUrl/doctors/$doctorId/status'),
+  );
+
+  if (response.statusCode == 200) {
+    return response.body; // Assuming the response body contains the status
+  } else {
+    log('Failed to load doctor status: ${response.statusCode}');
+    throw Exception('Failed to load doctor status');
   }
 }

@@ -4,36 +4,38 @@ import 'package:medicall/screens/doctor/reports/cubit/doctor_reports_cubit.dart'
 import 'package:medicall/screens/doctor/reports/data/report.dart';
 
 class AssignedTaskStatusButton extends StatefulWidget {
+  const AssignedTaskStatusButton({
+    required this.currentDoctorId,
+    super.key,
+    this.onStatusChanged,
+  });
   final String currentDoctorId;
   final void Function(String reportId, TaskStatusStep status)? onStatusChanged;
 
-  const AssignedTaskStatusButton({
-    Key? key,
-    required this.currentDoctorId,
-    this.onStatusChanged,
-  }) : super(key: key);
-
   @override
-  State<AssignedTaskStatusButton> createState() => _AssignedTaskStatusButtonState();
+  State<AssignedTaskStatusButton> createState() =>
+      _AssignedTaskStatusButtonState();
 }
 
 class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
   int _currentTaskIndex = 0;
   TaskStatusStep _statusStep = TaskStatusStep.departure;
   int? _initialTaskCount;
- 
 
   @override
   Widget build(BuildContext context) {
     // Get all assigned but not completed tasks for the current doctor from Cubit state
     final state = context.watch<DoctorReportsCubit>().state;
-    final assignedTasks = state.reports.where((r) =>
-      r.assignedDoctorId == widget.currentDoctorId && !r.completed).toList();
+    final assignedTasks = state.reports
+        .where(
+          (r) => r.assignedDoctorId == widget.currentDoctorId && !r.completed,
+        )
+        .toList();
 
-  _initialTaskCount ??= assignedTasks.length;// Store the initial task count
+    _initialTaskCount ??= assignedTasks.length; // Store the initial task count
     // If no assigned tasks, show a message
-  if (assignedTasks.isEmpty) {
-      return Center(
+    if (assignedTasks.isEmpty) {
+      return const Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -58,8 +60,6 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
       );
     }
 
-
-
     // Prevent index out of range
     if (_currentTaskIndex >= assignedTasks.length) {
       _currentTaskIndex = 0;
@@ -67,7 +67,7 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
     }
 
     final currentTask = assignedTasks[_currentTaskIndex];
-    final task_length=assignedTasks.length;
+    final taskLength = assignedTasks.length;
     _statusStep = currentTask.statusStep;
 
     // Map current status step to display text
@@ -75,10 +75,8 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
     switch (_statusStep) {
       case TaskStatusStep.departure:
         statusText = 'Departure';
-        break;
       case TaskStatusStep.arrival:
         statusText = 'Arrival';
-        break;
       case TaskStatusStep.complete:
         statusText = 'Complete';
         break;
@@ -94,8 +92,9 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
             _statusStep = TaskStatusStep.complete;
           } else if (_statusStep == TaskStatusStep.complete) {
             // Mark current task as completed and update Cubit state
-            context.read<DoctorReportsCubit>().setCompleted(id: currentTask.id, value: true);
-            // TODO: Send API request to mark task as completed on the backend
+            context
+                .read<DoctorReportsCubit>()
+                .setCompleted(id: currentTask.id, value: true);
 
             // Call external callback (if any)
             widget.onStatusChanged?.call(currentTask.id, _statusStep);
@@ -112,10 +111,10 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
             }
             return;
           }
-            context.read<DoctorReportsCubit>().setStatusStep(
-              id: currentTask.id,
-              status: _statusStep,
-              );          
+          context.read<DoctorReportsCubit>().setStatusStep(
+                id: currentTask.id,
+                status: _statusStep,
+              );
           // TODO: Send API request to update task status on the backend
           // Trigger callback on every status change
           widget.onStatusChanged?.call(currentTask.id, _statusStep);
@@ -123,7 +122,6 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
       },
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(25),
         ),
@@ -133,21 +131,20 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
         children: [
           Text(currentTask.name, style: const TextStyle(fontSize: 20)),
           const SizedBox(height: 4),
-          Text(statusText, style: const TextStyle(fontSize: 18, color: Colors.blue)),
+          Text(statusText,
+              style: const TextStyle(fontSize: 18, color: Colors.blue)),
           const SizedBox(height: 4),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.check_circle, color: Colors.green, size: 24),
+              const Icon(Icons.check_circle, color: Colors.green, size: 24),
               const SizedBox(width: 4),
               Text(
-                'Task ${_initialTaskCount!-assignedTasks.length+1} of ${_initialTaskCount}',
-                style: const TextStyle(fontSize: 16 ),
-                
+                'Task ${_initialTaskCount! - assignedTasks.length + 1} of $_initialTaskCount',
+                style: const TextStyle(fontSize: 16),
               ),
             ],
           ),
-
         ],
       ),
     );
