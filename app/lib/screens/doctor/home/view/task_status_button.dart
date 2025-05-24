@@ -39,7 +39,7 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 50),
+          SizedBox(height: 100),
           Row(
             
             mainAxisSize: MainAxisSize.min,
@@ -47,12 +47,12 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
             children: [
               Icon(Icons.emoji_events, color: Colors.green, size: 24),
               SizedBox(width: 8),
-              Text('All tasks completed.', style: TextStyle(fontSize: 18)),
+              Text('All appointments completed.', style: TextStyle(fontSize: 18)),
             ],
           ),
           SizedBox(height: 8),
           Text('Great work!', style: TextStyle(fontSize: 18)),
-          SizedBox(height: 30),
+          SizedBox(height: 50),
         ],
       ),
     );
@@ -104,7 +104,7 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
 
           ElevatedButton.icon(
             icon: Icon(actionIcon),
-            label: Text(statusText),
+            label: Text(statusText, style: const TextStyle(fontSize: 20)),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
@@ -142,7 +142,7 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
           if(nexttask != null)
             Text('Next: $nextPatientName at $nextAppointmentTime', style: const TextStyle(fontSize: 16, color: Colors.black))
           else
-            Text('No more tasks for today', style: TextStyle(fontSize: 16, color: Colors.black)),
+            Text('No more appoinments for today', style: TextStyle(fontSize: 16, color: Colors.black)),
           //Text(
           //  'Task ${_initialTaskCount! - assignedTasks.length + 1} of $_initialTaskCount',
           //  style: const TextStyle(fontSize: 16, color: Colors.black),

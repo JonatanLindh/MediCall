@@ -37,7 +37,7 @@ class DoctorHomeScreenContent extends StatelessWidget {
     //final nextAppointmentTime = currentTask?.time ?? 'No appointment';
     final tasks = [
       {'icon': Icons.description, 'text': "Review Sven's Report"},
-      {'icon': Icons.calendar_today, 'text': 'Confirm April 16 Appointment'},
+      {'icon': Icons.calendar_today, 'text': 'Confirm May 27 Appointment'},
       {'icon': Icons.chat, 'text': 'Respond to Patient Message'},
     ];
 
@@ -48,7 +48,7 @@ class DoctorHomeScreenContent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 60),
+            const SizedBox(height: 50),
             Text(
               'Good morning',
               style: theme.textTheme.bodyLarge?.copyWith(
@@ -79,7 +79,7 @@ class DoctorHomeScreenContent extends StatelessWidget {
             //Text('Next  Appointment: \n${nextPatientName} ${nextAppointmentTime}', style: theme.textTheme.bodyLarge),
             //Text(nextPatientName, style: theme.textTheme.bodyLarge),
             //Text(nextAppointmentTime, style: theme.textTheme.bodyLarge),
-            const SizedBox(height: 30),
+            const SizedBox(height: 40),
             const Text(
               'Today’s Tasks',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
