@@ -31,10 +31,10 @@ class DoctorHomeScreenContent extends StatelessWidget {
       r.assignedDoctorId == doctorName && !r.completed).toList();
 
     // Pick the first assigned task, or null if none
-    final currentTask = assignedTasks.isNotEmpty ? assignedTasks[0]:null;
+    //final currentTask = assignedTasks.isNotEmpty ? assignedTasks[0]:null;
 
-    final nextPatientName = currentTask?.name ?? 'No assigned patient';
-    final nextAppointmentTime = currentTask?.time ?? 'No appointment';
+    //final nextPatientName = currentTask?.name ?? 'No assigned patient';
+    //final nextAppointmentTime = currentTask?.time ?? 'No appointment';
     final tasks = [
       {'icon': Icons.description, 'text': "Review Sven's Report"},
       {'icon': Icons.calendar_today, 'text': 'Confirm April 16 Appointment'},
@@ -59,11 +59,9 @@ class DoctorHomeScreenContent extends StatelessWidget {
               doctorName,
               style: theme.textTheme.headlineMedium,
             ),
-            const SizedBox(height: 60),
-            Text('Next  Appointment', style: theme.textTheme.headlineMedium),
-            Text(nextPatientName, style: theme.textTheme.bodyLarge),
-            Text(nextAppointmentTime, style: theme.textTheme.bodyLarge),
-            const SizedBox(height: 40),
+            
+
+            const SizedBox(height: 30),
             Center(
                 child: AssignedTaskStatusButton(
                   currentDoctorId: 'Dr. Johan Nilsson',// Replace with actual doctor ID
@@ -77,7 +75,11 @@ class DoctorHomeScreenContent extends StatelessWidget {
                 ),
               //),
             ),
-            const SizedBox(height: 50),
+            //const SizedBox(height: 40),
+            //Text('Next  Appointment: \n${nextPatientName} ${nextAppointmentTime}', style: theme.textTheme.bodyLarge),
+            //Text(nextPatientName, style: theme.textTheme.bodyLarge),
+            //Text(nextAppointmentTime, style: theme.textTheme.bodyLarge),
+            const SizedBox(height: 30),
             const Text(
               'Today’s Tasks',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),

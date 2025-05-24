@@ -24,134 +24,134 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
 
   @override
   Widget build(BuildContext context) {
-    // Get all assigned but not completed tasks for the current doctor from Cubit state
-    final state = context.watch<DoctorReportsCubit>().state;
-    final assignedTasks = state.reports
-        .where(
-          (r) => r.assignedDoctorId == widget.currentDoctorId && !r.completed,
-        )
-        .toList();
+  final state = context.watch<DoctorReportsCubit>().state;
 
-    _initialTaskCount ??= assignedTasks.length; // Store the initial task count
-    // If no assigned tasks, show a message
-    if (assignedTasks.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.emoji_events, color: Colors.green, size: 24),
-                SizedBox(width: 04),
-                Text(
-                  'All tasks completed.',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ],
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Great work!',
-              style: TextStyle(fontSize: 18),
-            ),
-          ],
-        ),
-      );
-    }
+  final assignedTasks = state.reports
+      .where((r) => r.assignedDoctorId == widget.currentDoctorId && !r.completed)
+      .toList();
 
-    // Prevent index out of range
-    if (_currentTaskIndex >= assignedTasks.length) {
-      _currentTaskIndex = 0;
-      _statusStep = TaskStatusStep.departure;
-    }
-
-    final currentTask = assignedTasks[_currentTaskIndex];
-    final taskLength = assignedTasks.length;
-    _statusStep = currentTask.statusStep;
-
-    // Map current status step to display text
-    String statusText;
-    switch (_statusStep) {
-      case TaskStatusStep.departure:
-        statusText = 'Departure';
-      case TaskStatusStep.arrival:
-        statusText = 'Arrival';
-      case TaskStatusStep.complete:
-        statusText = 'Complete';
-        break;
-        throw UnimplementedError();
-    }
-
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          final oldStatusStep = _statusStep;
-
-          if (_statusStep == TaskStatusStep.departure) {
-            _statusStep = TaskStatusStep.arrival;
-          } else if (_statusStep == TaskStatusStep.arrival) {
-            _statusStep = TaskStatusStep.complete;
-          } else if (_statusStep == TaskStatusStep.complete) {
-            // Mark current task as completed and update Cubit state
-            context
-                .read<DoctorReportsCubit>()
-                .setCompleted(id: currentTask.id, value: true);
-
-            // Call external callback (if any)
-            widget.onStatusChanged?.call(currentTask.id, _statusStep);
-
-            // Move to the next task
-            _currentTaskIndex++;
-
-            // If all tasks are done, reset to first task and initial status
-            if (_currentTaskIndex >= assignedTasks.length) {
-              _currentTaskIndex = 0;
-              _statusStep = TaskStatusStep.departure;
-            } else {
-              _statusStep = TaskStatusStep.departure;
-            }
-            return;
-          }
-          context.read<DoctorReportsCubit>().setStatusStep(
-                id: currentTask.id,
-                oldStatus: oldStatusStep,
-                status: _statusStep,
-              );
-
-          // Trigger callback on every status change
-          widget.onStatusChanged?.call(currentTask.id, _statusStep);
-        });
-      },
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25),
-        ),
-      ),
+  _initialTaskCount ??= assignedTasks.length;
+  final nexttask=assignedTasks.length > 1 ? assignedTasks[1] : null;
+  final nextPatientName = nexttask?.name ?? null;
+  final nextAppointmentTime = nexttask?.time ?? null;
+  if (assignedTasks.isEmpty) {
+    return const Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(currentTask.name, style: const TextStyle(fontSize: 20)),
-          const SizedBox(height: 4),
-          Text(
-            statusText,
-            style: const TextStyle(fontSize: 18, color: Colors.blue),
-          ),
-          const SizedBox(height: 4),
+          SizedBox(height: 50),
           Row(
+            
             mainAxisSize: MainAxisSize.min,
+            
             children: [
-              const Icon(Icons.check_circle, color: Colors.green, size: 24),
-              const SizedBox(width: 4),
-              Text(
-                'Task ${_initialTaskCount! - assignedTasks.length + 1} of $_initialTaskCount',
-                style: const TextStyle(fontSize: 16),
-              ),
+              Icon(Icons.emoji_events, color: Colors.green, size: 24),
+              SizedBox(width: 8),
+              Text('All tasks completed.', style: TextStyle(fontSize: 18)),
             ],
           ),
+          SizedBox(height: 8),
+          Text('Great work!', style: TextStyle(fontSize: 18)),
+          SizedBox(height: 30),
         ],
       ),
     );
   }
+
+  if (_currentTaskIndex >= assignedTasks.length) {
+    _currentTaskIndex = 0;
+    _statusStep = TaskStatusStep.departure;
+  }
+
+  final currentTask = assignedTasks[_currentTaskIndex];
+  _statusStep = currentTask.statusStep;
+
+  String statusText;
+  IconData actionIcon;
+  switch (_statusStep) {
+    case TaskStatusStep.departure:
+      statusText = 'Depart to Patient';
+      actionIcon = Icons.directions_car;
+      break;
+    case TaskStatusStep.arrival:
+      statusText = 'Mark Arrival';
+      actionIcon = Icons.location_on;
+      break;
+    case TaskStatusStep.complete:
+      statusText = 'Complete Visit';
+      actionIcon = Icons.check_circle;
+      break;
+    default:
+      throw UnimplementedError();
+  }
+
+  return Card(
+    elevation: 3,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    //margin: const EdgeInsets.all(16),
+    child: Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Current Appoinment', style: TextStyle(fontSize: 22, color: Colors.black, fontWeight: FontWeight.bold),),
+          const SizedBox(height: 10),
+          Text(currentTask.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          Text(currentTask.time, style: const TextStyle(fontSize: 18, color: Colors.black)),
+          const SizedBox(height: 10),
+
+          ElevatedButton.icon(
+            icon: Icon(actionIcon),
+            label: Text(statusText),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              minimumSize: const Size.fromHeight(50),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () {
+              setState(() {
+                final oldStatusStep = _statusStep;
+
+                if (_statusStep == TaskStatusStep.departure) {
+                  _statusStep = TaskStatusStep.arrival;
+                } else if (_statusStep == TaskStatusStep.arrival) {
+                  _statusStep = TaskStatusStep.complete;
+                } else if (_statusStep == TaskStatusStep.complete) {
+                  context.read<DoctorReportsCubit>().setCompleted(id: currentTask.id, value: true);
+                  widget.onStatusChanged?.call(currentTask.id, _statusStep);
+                  _currentTaskIndex++;
+                  _statusStep = _currentTaskIndex >= assignedTasks.length
+                      ? TaskStatusStep.departure
+                      : TaskStatusStep.departure;
+                  return;
+                }
+
+                context.read<DoctorReportsCubit>().setStatusStep(
+                      id: currentTask.id,
+                      oldStatus: oldStatusStep,
+                      status: _statusStep,
+                    );
+                widget.onStatusChanged?.call(currentTask.id, _statusStep);
+              });
+            },
+          ),
+          const SizedBox(height: 15),
+          if(nexttask != null)
+            Text('Next: $nextPatientName at $nextAppointmentTime', style: const TextStyle(fontSize: 16, color: Colors.black))
+          else
+            Text('No more tasks for today', style: TextStyle(fontSize: 16, color: Colors.black)),
+          //Text(
+          //  'Task ${_initialTaskCount! - assignedTasks.length + 1} of $_initialTaskCount',
+          //  style: const TextStyle(fontSize: 16, color: Colors.black),
+          //),
+          
+        ],
+      ),
+    ),
+  );
+}
+
 }
