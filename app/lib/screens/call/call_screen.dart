@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:medicall/screens/call/bloc/call_bloc.dart';
 import 'package:livekit_client/livekit_client.dart';
+import 'package:medicall/screens/call/bloc/call_bloc.dart';
 
 class CallScreen extends StatelessWidget {
   const CallScreen({super.key});
@@ -74,10 +73,23 @@ class CallInitialUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
+
     return Center(
-      child: ElevatedButton(
+      child: FilledButton(
         onPressed: callStart,
-        child: const Text('Start Call'),
+        style: FilledButton.styleFrom(
+          backgroundColor: c.secondary,
+          foregroundColor: c.onSecondary,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          textStyle: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        child: const Text(
+          'Start Call',
+        ),
       ),
     );
   }
