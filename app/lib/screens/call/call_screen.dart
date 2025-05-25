@@ -150,7 +150,7 @@ class CallAnsweredUI extends StatelessWidget {
                     participants: remoteParticipants,
                     constraints: constraints,
                   ),
-                  if (localParticipant.hasVideo)
+                  if (localParticipant.hasVideo || true)
                     HoveringVideo(
                       participant: localParticipant,
                       constraints: constraints,
@@ -163,8 +163,16 @@ class CallAnsweredUI extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 0, 0, 25),
           child: ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.all(
+                Theme.of(context).colorScheme.error,
+              ),
+            ),
             onPressed: callCancel,
-            child: const Text('Cancel Call'),
+            child: Text(
+              'Cancel Call',
+              style: TextStyle(color: Theme.of(context).colorScheme.surface),
+            ),
           ),
         ),
       ],
@@ -308,11 +316,6 @@ class ParticipantBlock extends StatelessWidget {
       Colors.pink,
       Colors.blue,
       Colors.amber,
-      Colors.deepPurpleAccent,
-      Colors.green,
-      Colors.red,
-      Colors.teal,
-      Colors.orange,
     ];
 
     final videos = participant.videoTrackPublications
@@ -320,9 +323,62 @@ class ParticipantBlock extends StatelessWidget {
         .map((v) => v.track! as VideoTrack)
         .toList();
 
-    Widget display = ColoredBox(
-      color: colors[participant.identity.hashCode % colors.length],
-      child: Center(child: Text(participant.name)),
+    print(participant.identity.hashCode);
+    // Instead of a simple ColoredBox, use a gradient with multiple colors for better differentiation
+    // Use a more varied pattern for color selection to maximize combinations
+    final hash = participant.identity.hashCode.abs();
+    final colorCount = colors.length;
+    final i = hash % colorCount;
+    final j = (hash ~/ colorCount) % colorCount;
+    final k = (hash ~/ (colorCount * colorCount)) % colorCount;
+
+    Widget display = Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            colors[i],
+            colors[j],
+            colors[k],
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Place the image at the bottom edge
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Opacity(
+              opacity: 1, // Adjust for desired effect
+              child: Image.network(
+                'https://cdn-icons-png.flaticon.com/512/9267/9267565.png',
+                fit: BoxFit.contain,
+                width: double.infinity, // Adjust height as needed
+                alignment: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+          Center(
+            child: Text(
+              participant.name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                shadows: [
+                  Shadow(
+                    blurRadius: 4,
+                    color: Colors.black54,
+                    offset: Offset(1, 1),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
 
     if (videos.isNotEmpty) {

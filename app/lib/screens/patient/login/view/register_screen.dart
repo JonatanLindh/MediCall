@@ -108,7 +108,8 @@ class RegisterScreen extends HookWidget {
                       onPressed: () {},
                       child: Text(
                         'Forgot password?',
-                        style: TextStyle(color: Theme.of(context).primaryColor),
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary),
                       ),
                     ),
                   ),
