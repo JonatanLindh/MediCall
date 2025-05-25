@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicall/app/routes.dart';
+import 'package:medicall/contants/colorscheme.dart';
 import 'package:medicall/l10n/l10n.dart';
 import 'package:medicall/repositories/geo/geo.dart';
 import 'package:medicall/screens/patient/login/bloc/login_bloc.dart';
@@ -33,6 +34,7 @@ class App extends StatelessWidget {
           child: MaterialApp.router(
             routerConfig: router,
             theme: ThemeData(
+              colorScheme: colorScheme,
               appBarTheme: const AppBarTheme(
                 backgroundColor: Colors.transparent,
                 titleTextStyle: TextStyle(

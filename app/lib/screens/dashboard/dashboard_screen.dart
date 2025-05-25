@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:medicall/app/routes.dart';
+import 'package:medicall/contants/colorscheme.dart';
 import 'package:medicall/repositories/doctor/doctor_repository.dart';
 import 'package:medicall/repositories/geo/geo.dart';
 import 'package:medicall/screens/dashboard/cubit/visits_cubit.dart';
@@ -29,10 +30,19 @@ class DashboardScreen extends StatelessWidget {
             CallRoute().push<BuildContext>(context);
           },
           style: ButtonStyle(
+            textStyle: WidgetStatePropertyAll(
+              TextStyle(
+                color: Theme.of(context).colorScheme.onSecondary,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
             elevation: const WidgetStatePropertyAll(4),
             minimumSize:
                 WidgetStateProperty.all(const Size(double.infinity, 50)),
-            backgroundColor: WidgetStateProperty.all(Colors.redAccent),
+            backgroundColor: WidgetStateProperty.all(
+              Theme.of(context).colorScheme.secondary,
+            ),
           ),
           child: const Text('Call For Help'),
         ),
