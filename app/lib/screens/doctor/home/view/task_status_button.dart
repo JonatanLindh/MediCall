@@ -154,7 +154,7 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
               Text('Next: $nextPatientName at $nextAppointmentTime',
                   style: const TextStyle(fontSize: 16, color: Colors.black))
             else
-              const Text('No more appoinments for today',
+              const Text('No more appointments for today',
                   style: TextStyle(fontSize: 16, color: Colors.black)),
             //Text(
             //  'Task ${_initialTaskCount! - assignedTasks.length + 1} of $_initialTaskCount',
