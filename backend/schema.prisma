@@ -16,7 +16,7 @@ model Doctor {
   email         String @unique
   password_hash Bytes
 
-  status String
+  status String?
 
   latitude  Float?
   longitude Float?
