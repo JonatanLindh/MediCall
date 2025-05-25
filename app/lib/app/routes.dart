@@ -7,7 +7,7 @@ import 'package:medicall/repositories/geo/repo/geo_repository.dart';
 import 'package:medicall/screens/call/call_screen.dart';
 import 'package:medicall/screens/dashboard/dashboard_screen.dart';
 import 'package:medicall/screens/doctor/doctor.dart';
-import 'package:medicall/screens/patient/doctor_location/bloc/doctor_location_bloc.dart';
+import 'package:medicall/screens/patient/doctor_location/bloc/doctor_bloc.dart';
 import 'package:medicall/screens/patient/login/view/register_screen.dart';
 import 'package:medicall/screens/patient/patient.dart';
 
