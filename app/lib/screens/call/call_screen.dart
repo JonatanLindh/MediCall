@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:livekit_client/livekit_client.dart';
+import 'package:medicall/repositories/call/call_repository.dart';
 import 'package:medicall/screens/call/bloc/call_bloc.dart';
 
 class CallScreen extends StatelessWidget {
-  const CallScreen({super.key});
+  const CallScreen({super.key, this.roomNameToConnect = ''});
 
+  final String roomNameToConnect;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,9 +16,12 @@ class CallScreen extends StatelessWidget {
         title: const Text('Call Screen'),
       ),
       body: BlocProvider(
-        create: (context) => CallBloc(),
+        create: (context) => CallBloc(callRepository: CallRepository()),
         child: BlocBuilder<CallBloc, CallState>(
-          builder: (context, state) => DisplayAppropriateScreen(state: state),
+          builder: (context, state) => DisplayAppropriateScreen(
+            state: state,
+            roomNameToConnect: roomNameToConnect,
+          ),
         ),
       ),
     );
@@ -24,15 +29,18 @@ class CallScreen extends StatelessWidget {
 }
 
 class DisplayAppropriateScreen extends StatelessWidget {
-  const DisplayAppropriateScreen({required this.state, super.key});
+  const DisplayAppropriateScreen({
+    required this.state,
+    this.roomNameToConnect = '',
+    super.key,
+  });
   final CallState state;
+  final String roomNameToConnect;
 
   @override
   Widget build(BuildContext context) {
     void callStart() {
-      context
-          .read<CallBloc>()
-          .add(CallStartEvent('IDFORANOTHERUSERORSOMETHING'));
+      context.read<CallBloc>().add(CallStartEvent(roomNameToConnect));
     }
 
     void callCancel() {
@@ -323,7 +331,6 @@ class ParticipantBlock extends StatelessWidget {
         .map((v) => v.track! as VideoTrack)
         .toList();
 
-    print(participant.identity.hashCode);
     // Instead of a simple ColoredBox, use a gradient with multiple colors for better differentiation
     // Use a more varied pattern for color selection to maximize combinations
     final hash = participant.identity.hashCode.abs();

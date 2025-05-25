@@ -28,7 +28,8 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
 
     final assignedTasks = state.reports
         .where(
-            (r) => r.assignedDoctorId == widget.currentDoctorId && !r.completed)
+          (r) => r.assignedDoctorId == widget.currentDoctorId && !r.completed,
+        )
         .toList();
 
     _initialTaskCount ??= assignedTasks.length;
@@ -36,23 +37,29 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
     final nextPatientName = nexttask?.name;
     final nextAppointmentTime = nexttask?.time;
     if (assignedTasks.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(height: 100),
+            const SizedBox(height: 100),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.emoji_events, color: Colors.green, size: 24),
-                SizedBox(width: 8),
-                Text('All appointments completed.',
-                    style: TextStyle(fontSize: 18)),
+                Icon(
+                  Icons.emoji_events,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 24,
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'All appointments completed.',
+                  style: TextStyle(fontSize: 18),
+                ),
               ],
             ),
-            SizedBox(height: 8),
-            Text('Great work!', style: TextStyle(fontSize: 18)),
-            SizedBox(height: 50),
+            const SizedBox(height: 8),
+            const Text('Great work!', style: TextStyle(fontSize: 18)),
+            const SizedBox(height: 50),
           ],
         ),
       );
@@ -96,29 +103,34 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
             const Text(
               'Current Appoinment',
               style: TextStyle(
-                  fontSize: 22,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold),
+                fontSize: 22,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 10),
-            Text(currentTask.name,
-                style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            Text(
+              currentTask.name,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 10),
-            Text(currentTask.time,
-                style: const TextStyle(fontSize: 18, color: Colors.black)),
+            Text(
+              currentTask.time,
+              style: const TextStyle(fontSize: 18, color: Colors.black),
+            ),
             const SizedBox(height: 10),
 
             ElevatedButton.icon(
               icon: Icon(actionIcon),
               label: Text(statusText, style: const TextStyle(fontSize: 20)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(174, 154, 239, 153),
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 //color
                 foregroundColor: Colors.white,
                 minimumSize: const Size.fromHeight(50),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               onPressed: () {
                 setState(() {
@@ -151,11 +163,15 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
             ),
             const SizedBox(height: 15),
             if (nexttask != null)
-              Text('Next: $nextPatientName at $nextAppointmentTime',
-                  style: const TextStyle(fontSize: 16, color: Colors.black))
+              Text(
+                'Next: $nextPatientName at $nextAppointmentTime',
+                style: const TextStyle(fontSize: 16, color: Colors.black),
+              )
             else
-              const Text('No more appointments for today',
-                  style: TextStyle(fontSize: 16, color: Colors.black)),
+              const Text(
+                'No more appointments for today',
+                style: TextStyle(fontSize: 16, color: Colors.black),
+              ),
             //Text(
             //  'Task ${_initialTaskCount! - assignedTasks.length + 1} of $_initialTaskCount',
             //  style: const TextStyle(fontSize: 16, color: Colors.black),

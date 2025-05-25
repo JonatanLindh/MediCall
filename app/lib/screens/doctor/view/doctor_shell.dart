@@ -54,7 +54,7 @@ class DoctorShell extends StatelessWidget {
         ),
         child: NavigationBar(
           backgroundColor: Colors.white,
-          indicatorColor: const Color.fromARGB(158, 255, 168, 206),
+          indicatorColor: Theme.of(context).colorScheme.primary.withAlpha(0x95),
           destinations: const [
             NavigationDestination(
               icon: Icon(Icons.home_outlined),

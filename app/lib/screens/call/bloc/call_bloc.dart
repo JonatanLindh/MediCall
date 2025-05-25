@@ -4,40 +4,28 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:livekit_client/livekit_client.dart';
 import 'package:medicall/contants/api.dart';
+import 'package:medicall/repositories/call/call_repository.dart';
 import 'package:meta/meta.dart';
 
 part 'call_event.dart';
 part 'call_state.dart';
 
 class CallBloc extends Bloc<CallEvent, CallState> {
-  CallBloc() : super(CallInitial()) {
+  CallBloc({required this.callRepository}) : super(CallInitial()) {
     on<CallStartEvent>(onCallStartEvent);
     on<CallCancelEvent>(onCallCancelEvent);
     on<_UpdateParticipantsUIEvent>(onUpdateParticipantsUI);
     on<_ParticipantConnectedEvent>(onParticipantConnectedEvent);
     on<_ParticipantDisconnectedEvent>(onParticipantDisconnectedEvent);
   }
-
+  CallRepository callRepository;
   CancelableOperation<void>? _callOperation;
 
   Room room = Room();
   EventsListener<RoomEvent>? _listener;
 
-  Future<String?> getVideoToken() async {
-    final response = await http.get(
-      Uri.parse('$apiUrl/getvideotoken'),
-      headers: {'Content-Type': 'application/json'},
-    );
-    print('$apiUrl/getvideotoken');
-
-    if (response.statusCode == 200) {
-      return response.body;
-    } else {
-      print('Response status: ${response.statusCode}');
-      print('Response headers: ${response.headers}');
-      print('Response body: ${response.body}');
-    }
-    return null;
+  Future<String?> getVideoToken({String roomNameToConnect = ''}) async {
+    return callRepository.getVideoToken(roomName: roomNameToConnect);
   }
 
   Future<void> call(String token) async {
@@ -74,13 +62,14 @@ class CallBloc extends Bloc<CallEvent, CallState> {
   }
 
   Future<void> onCallStartEvent(
-    CallEvent event,
+    CallStartEvent event,
     Emitter<CallState> emit,
   ) async {
     emit(CallCalling());
 
     _callOperation = CancelableOperation.fromFuture(() async {
-      final token = await getVideoToken();
+      final token =
+          await getVideoToken(roomNameToConnect: event.roomNameToConnect);
       if (token == null) {
         emit(CallError('No video token'));
         return;

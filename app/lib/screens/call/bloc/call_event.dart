@@ -4,8 +4,8 @@ part of 'call_bloc.dart';
 sealed class CallEvent {}
 
 class CallStartEvent extends CallEvent {
-  CallStartEvent(this.userId);
-  final String userId;
+  CallStartEvent(this.roomNameToConnect);
+  final String roomNameToConnect;
 }
 
 class CallCancelEvent extends CallEvent {}
