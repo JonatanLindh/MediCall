@@ -29,6 +29,10 @@ RouteBase get $homeRoute => GoRouteData.$route(
           path: '/call',
           factory: $CallRouteExtension._fromState,
         ),
+        GoRouteData.$route(
+          path: '/message',
+          factory: $MessageRouteExtension._fromState,
+        ),
       ],
     );
 
@@ -88,6 +92,23 @@ extension $CallRouteExtension on CallRoute {
 
   String get location => GoRouteData.$location(
         '/call',
+      );
+
+  void go(BuildContext context) => context.go(location);
+
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  void replace(BuildContext context) => context.replace(location);
+}
+
+extension $MessageRouteExtension on MessageRoute {
+  static MessageRoute _fromState(GoRouterState state) => MessageRoute();
+
+  String get location => GoRouteData.$location(
+        '/message',
       );
 
   void go(BuildContext context) => context.go(location);
