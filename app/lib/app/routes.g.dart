@@ -8,7 +8,6 @@ part of 'routes.dart';
 
 List<RouteBase> get $appRoutes => [
       $homeRoute,
-      $timelineRoute,
       $doctorShellRoute,
       $patientShellRoute,
     ];
@@ -88,28 +87,6 @@ extension $CallRouteExtension on CallRoute {
 
   String get location => GoRouteData.$location(
         '/call',
-      );
-
-  void go(BuildContext context) => context.go(location);
-
-  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
-
-  void pushReplacement(BuildContext context) =>
-      context.pushReplacement(location);
-
-  void replace(BuildContext context) => context.replace(location);
-}
-
-RouteBase get $timelineRoute => GoRouteData.$route(
-      path: '/timeline',
-      factory: $TimelineRouteExtension._fromState,
-    );
-
-extension $TimelineRouteExtension on TimelineRoute {
-  static TimelineRoute _fromState(GoRouterState state) => TimelineRoute();
-
-  String get location => GoRouteData.$location(
-        '/timeline',
       );
 
   void go(BuildContext context) => context.go(location);
