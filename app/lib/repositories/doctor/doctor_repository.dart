@@ -56,7 +56,7 @@ class DoctorRepository {
       Visit(
         id: 'visit1',
         doctor: doctors[0],
-        date: DateTime.now().add(const Duration(hours: 5)),
+        date: DateTime.now().add(const Duration(hours: 1)),
       ),
       Visit(
         id: 'visit2',
