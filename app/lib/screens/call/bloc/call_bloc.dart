@@ -123,7 +123,6 @@ class CallBloc extends Bloc<CallEvent, CallState> {
       })
       ..on<ActiveSpeakersChangedEvent>((e) {})
       ..on<TrackPublishedEvent>((event) {
-        print('UDHDH');
         print(event.publication.track.runtimeType);
 
         if (event.publication.track is AudioTrack) {

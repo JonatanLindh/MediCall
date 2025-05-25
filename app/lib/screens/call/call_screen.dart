@@ -57,6 +57,7 @@ class DisplayAppropriateScreen extends StatelessWidget {
         localParticipant: answered.localParticipant,
         remoteParticipants: answered.remoteParticipants,
         callCancel: callCancel,
+        isDoctor: roomNameToConnect.isNotEmpty,
       );
     } else if (state is CallError) {
       final error = state as CallError;
@@ -132,11 +133,13 @@ class CallAnsweredUI extends StatelessWidget {
     required this.localParticipant,
     required this.remoteParticipants,
     required this.callCancel,
+    this.isDoctor = false,
     super.key,
   });
   final Participant localParticipant;
   final List<Participant> remoteParticipants;
   final VoidCallback callCancel;
+  final bool isDoctor;
 
   @override
   Widget build(BuildContext context) {
@@ -162,6 +165,7 @@ class CallAnsweredUI extends StatelessWidget {
                     HoveringVideo(
                       participant: localParticipant,
                       constraints: constraints,
+                      isDoctor: isDoctor,
                     ),
                 ],
               );
@@ -220,11 +224,13 @@ class HoveringVideo extends StatefulWidget {
   const HoveringVideo({
     required this.participant,
     required this.constraints,
+    this.isDoctor = false,
     super.key,
   });
 
   final Participant participant;
   final BoxConstraints constraints;
+  final bool isDoctor;
 
   @override
   State<HoveringVideo> createState() => _HoveringVideoState();
@@ -267,6 +273,7 @@ class _HoveringVideoState extends State<HoveringVideo> {
                 height: widget.constraints.maxHeight * 0.25,
                 child: ParticipantBlock(
                   participant: widget.participant,
+                  isDoctor: widget.isDoctor,
                 ),
               );
               return Draggable<int>(
@@ -315,9 +322,13 @@ class DragCornerTarget extends StatelessWidget {
 }
 
 class ParticipantBlock extends StatelessWidget {
-  const ParticipantBlock({required this.participant, super.key});
+  const ParticipantBlock({
+    required this.participant,
+    this.isDoctor = false,
+    super.key,
+  });
   final Participant participant;
-
+  final bool isDoctor;
   @override
   Widget build(BuildContext context) {
     const colors = [
@@ -360,7 +371,9 @@ class ParticipantBlock extends StatelessWidget {
             child: Opacity(
               opacity: 1, // Adjust for desired effect
               child: Image.network(
-                'https://cdn-icons-png.flaticon.com/512/9267/9267565.png',
+                isDoctor
+                    ? 'https://cdn-icons-png.freepik.com/256/16841/16841984.png?semt=ais_hybrid'
+                    : 'https://cdn-icons-png.flaticon.com/512/9267/9267565.png',
                 fit: BoxFit.contain,
                 width: double.infinity, // Adjust height as needed
                 alignment: Alignment.bottomCenter,
