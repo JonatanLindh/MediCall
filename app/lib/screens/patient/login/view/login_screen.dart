@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicall/app/routes.dart';
 import 'package:medicall/contants/colorscheme.dart';
@@ -72,6 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   InputField(
                     hintText: 'Enter your password',
                     prefixIcon: const Icon(Icons.key),
+                    keyboardType: TextInputType.text,
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword
@@ -135,7 +137,9 @@ class InputField extends StatelessWidget {
     this.validator,
     this.suffixIcon,
     this.prefixIcon,
+    this.controller,
     this.obscureText = false,
+    this.keyboardType = TextInputType.emailAddress,
     super.key,
   });
   final String hintText;
@@ -144,9 +148,12 @@ class InputField extends StatelessWidget {
   final Widget? suffixIcon;
   final Widget? prefixIcon;
   final bool obscureText;
+  final TextInputType keyboardType;
+  final TextEditingController? controller;
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      controller: controller,
       decoration: InputDecoration(
         fillColor: Theme.of(context).colorScheme.primary.withAlpha(0x2F),
         filled: true,
@@ -158,7 +165,7 @@ class InputField extends StatelessWidget {
         ),
         suffixIcon: suffixIcon,
       ),
-      keyboardType: TextInputType.emailAddress,
+      keyboardType: keyboardType,
       validator: validator,
       onSaved: onSaved,
       obscureText: obscureText,
