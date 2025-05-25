@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:medicall/app/routes.dart';
 import 'package:medicall/screens/patient/login/bloc/login_bloc.dart';
+import 'package:medicall/screens/patient/login/view/login_screen.dart';
 
 class RegisterScreen extends HookWidget {
   RegisterScreen({super.key});
@@ -11,6 +12,7 @@ class RegisterScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final obscurePassword = useState(false);
     final emailController = useTextEditingController();
     final passwordController = useTextEditingController();
     final firstNameController = useTextEditingController();
@@ -55,60 +57,58 @@ class RegisterScreen extends HookWidget {
               key: _formKey,
               child: Column(
                 children: [
-                  TextFormField(
+                  InputField(
                     controller: firstNameController,
-                    decoration: const InputDecoration(
-                      hintText: 'First Name',
-                      prefixIcon: Icon(Icons.person_outline),
-                      border: OutlineInputBorder(),
-                    ),
+                    hintText: 'First Name',
+                    prefixIcon: const Icon(Icons.person_outline),
                     keyboardType: TextInputType.name,
                   ),
                   const SizedBox(height: 20),
-                  TextFormField(
+                  InputField(
                     controller: lastNameController,
-                    decoration: const InputDecoration(
-                      hintText: 'Last Name',
-                      prefixIcon: Icon(Icons.person_outline),
-                      border: OutlineInputBorder(),
-                    ),
+                    hintText: 'Last Name',
+                    prefixIcon: const Icon(Icons.person_outline),
                     keyboardType: TextInputType.name,
                   ),
                   const SizedBox(height: 20),
-                  TextFormField(
+                  InputField(
                     controller: emailController,
-                    decoration: const InputDecoration(
-                      hintText: 'Enter your email',
-                      prefixIcon: Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
+                    hintText: 'Enter your email',
+                    prefixIcon: const Icon(Icons.email_outlined),
                     validator: (value) =>
                         (value == null || !value.contains('@'))
                             ? 'Enter a valid email'
                             : null,
                   ),
                   const SizedBox(height: 20),
-                  TextFormField(
+                  InputField(
                     controller: passwordController,
                     keyboardType: TextInputType.visiblePassword,
-                    decoration: const InputDecoration(
-                      hintText: 'Enter your password',
-                      prefixIcon: Icon(Icons.lock_outline),
-                      border: OutlineInputBorder(),
-                    ),
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    hintText: 'Enter your password',
                     validator: (value) => (value == null || value.length < 6)
                         ? 'Minimum 6 characters'
                         : null,
+                    obscureText: obscurePassword.value,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        obscurePassword.value
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                      ),
+                      onPressed: () {
+                        obscurePassword.value = !obscurePassword.value;
+                      },
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () {},
-                      child: const Text(
+                      child: Text(
                         'Forgot password?',
-                        style: TextStyle(color: Colors.blue),
+                        style: TextStyle(color: Theme.of(context).primaryColor),
                       ),
                     ),
                   ),
@@ -123,11 +123,6 @@ class RegisterScreen extends HookWidget {
                         return SubmitButton(onSubmit: submit);
                       }
                     },
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    "Don't have an account? ",
-                    style: TextStyle(fontSize: 14),
                   ),
                 ],
               ),
@@ -148,7 +143,7 @@ class SubmitButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: () => onSubmit(context),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blue,
+        backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(
           horizontal: 80,
