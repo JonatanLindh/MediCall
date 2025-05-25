@@ -22,14 +22,12 @@ class Report {
   final bool completed;
   final TaskStatusStep statusStep;
 
-  static const _undefined = Object();
-
   Report copyWith({
     String? id,
     String? name,
     String? description,
     String? time,
-    Object? assignedDoctorId = _undefined,
+    String? assignedDoctorId,
     bool? completed,
     TaskStatusStep? statusStep,
   }) {
@@ -38,9 +36,9 @@ class Report {
       name: name ?? this.name,
       description: description ?? this.description,
       time: time ?? this.time,
-      assignedDoctorId: identical(assignedDoctorId, _undefined)
+      assignedDoctorId: identical(assignedDoctorId, null)
           ? this.assignedDoctorId
-          : assignedDoctorId as String?, // allow null
+          : assignedDoctorId, // allow null
       completed: completed ?? this.completed,
       statusStep: statusStep ?? this.statusStep,
     );
