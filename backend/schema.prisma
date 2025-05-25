@@ -20,6 +20,7 @@ model Doctor {
 
   latitude  Float?
   longitude Float?
+  Report    Report[]
 }
 
 model Patient {
@@ -27,6 +28,21 @@ model Patient {
   firstName String
   lastName  String
 
-  email         String @unique
+  email         String   @unique
   password_hash Bytes
+  Report        Report[]
+}
+
+model Report {
+  id String @id @default(cuid())
+
+  patientId String
+  doctorId  String
+
+  description String
+  status      String
+  completed   Boolean @default(false)
+
+  patient Patient @relation(fields: [patientId], references: [id])
+  doctor  Doctor  @relation(fields: [doctorId], references: [id])
 }

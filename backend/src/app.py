@@ -1,3 +1,4 @@
+from typing import Optional
 from livekit import api
 import random
 from http.client import OK, UNAUTHORIZED
@@ -5,8 +6,9 @@ import json
 from bcrypt import gensalt, hashpw
 import bcrypt
 from prisma import Base64, Prisma
-from prisma.models import Doctor, Patient
+from prisma.models import Doctor, Patient, Report
 from prisma.bases import BaseDoctor
+from prisma.types import ReportUpdateInput
 from robyn import Response, Robyn, WebSocket
 from robyn.types import Body
 
@@ -173,6 +175,80 @@ async def get_doctor_status(request):
         )
     else:
         return Response(status_code=404, description="Doctor not found", headers={})
+
+
+# REPORT
+class ReportBody(Body):
+    patientId: str
+    doctorId: str
+    description: str
+    status: str
+
+
+@app.post("/api/reports")
+async def create_report(request, body: ReportBody):
+    data = request.json()
+    patient_id = data["patientId"]
+    doctor_id = data["doctorId"]
+    description = data["description"]
+    status = data["status"]
+
+    await Report.prisma().create(
+        data={
+            "patientId": patient_id,
+            "doctorId": doctor_id,
+            "description": description,
+            "status": status,
+        },
+    )
+
+    return Response(
+        status_code=201,
+        headers={},
+        description="Report created successfully",
+    )
+
+
+class UpdateReportBody(Body):
+    status: Optional[str]
+    completed: Optional[bool]
+
+
+@app.patch("/api/reports/:id")
+async def update_report(request, body: UpdateReportBody):
+    id = request.path_params["id"]
+    data = request.json()
+    status = data.get("status")
+    completed = data.get("completed")
+
+    update_data: ReportUpdateInput = {}
+    if status is not None:
+        update_data["status"] = status
+    if completed is not None:
+        update_data["completed"] = completed
+
+    await Report.prisma().update(
+        where={"id": id},
+        data=update_data,
+    )
+
+    return Response(
+        status_code=200,
+        headers={},
+        description="Report updated successfully",
+    )
+
+
+@app.get("/api/reports/:id")
+async def get_report(request):
+    id = request.path_params["id"]
+    report = await Report.prisma().find_unique(
+        where={"id": id},
+    )
+    if report:
+        return json.dumps(report, indent=2)
+    else:
+        return Response(status_code=404, description="Report not found", headers={})
 
 
 class LoginBody(Body):
