@@ -1,172 +1,198 @@
 import 'package:flutter/material.dart';
 import 'package:medicall/app/app_export.dart';
 
-class TimelineScreen extends StatelessWidget {
-  TimelineScreen({super.key});
+class TimelineStep {
+  const TimelineStep(this.title, {required this.isActive});
+  final String title;
+  final bool isActive;
+}
 
-  final List<TimelineStep> steps = [
-    const TimelineStep('Receiving the emergency call', isActive: true),
-    const TimelineStep('Dispatching emergency resources', isActive: true),
-    const TimelineStep('Help is on the way', isActive: true),
-    const TimelineStep('Arrival at the scene', isActive: false),
-    const TimelineStep('Care completed', isActive: false),
-  ];
+class TimelineScreen extends StatelessWidget {
+  const TimelineScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        title: const Text('Visit'),
+        centerTitle: true,
       ),
-      backgroundColor: appTheme.indigo50,
-      body: Container(
-        width: double.maxFinite,
-        padding: const EdgeInsets.only(left: 30, top: 56, right: 30),
-        child: Column(
-          children: [
-            Text(
-              "You're not alone \n — help is coming",
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 30),
-            _buildColumnassignedt(context),
-            const SizedBox(height: 30),
-            _buildRowclockone(context),
-            const SizedBox(height: 60),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: _buildTimeline(context),
-            ),
-            Container(
-              margin: const EdgeInsets.only(left: 4, right: 14),
-              height: 24,
-              width: double.maxFinite,
-            ),
-          ],
-        ),
-      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: const FloatingActionButtons(),
+      body: const DoctorStatus(),
     );
   }
+}
 
-  /// Section Widget
-  Widget _buildColumnassignedt(BuildContext context) {
-    return Container(
-      width: double.maxFinite,
-      margin: const EdgeInsets.only(left: 4, right: 2),
-      padding: const EdgeInsets.symmetric(vertical: 32),
-      decoration: AppDecoration.fillGray.copyWith(
-        borderRadius: BorderRadiusStyle.roundedBorder10,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+class FloatingActionButtons extends StatelessWidget {
+  const FloatingActionButtons({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        spacing: 10,
         children: [
-          Text(
-            'Assigned Team: \nMobile Healthcare teams',
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.titleMedium,
+          FilledButton(
+            onPressed: () {},
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+              foregroundColor: Colors.black,
+            ),
+            child: const Text('Call', style: TextStyle(fontSize: 17)),
+          ),
+          FilledButton(
+            onPressed: () {},
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.tertiary,
+              foregroundColor: Colors.black,
+            ),
+            child: const Text('Message', style: TextStyle(fontSize: 17)),
           ),
         ],
       ),
     );
   }
+}
 
-  /// Section Widget
-  Widget _buildRowclockone(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(left: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 30),
-      decoration: AppDecoration.fillGray.copyWith(
-        borderRadius: BorderRadiusStyle.roundedBorder10,
-      ),
-      width: double.maxFinite,
-      child: Row(
+final List<TimelineStep> steps = [
+  const TimelineStep('Receiving the emergency call', isActive: true),
+  const TimelineStep('Dispatching emergency resources', isActive: true),
+  const TimelineStep('Help is on the way', isActive: true),
+  const TimelineStep('Arrival at the scene', isActive: false),
+  const TimelineStep('Care completed', isActive: false),
+];
+
+class DoctorStatus extends StatelessWidget {
+  const DoctorStatus({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 20,
         children: [
-          Image.asset(
-            ImageConstant.imgClock,
-            height: 34,
-            width: 34,
-            fit: BoxFit.contain,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.asset(ImageConstant.imgMap),
           ),
-          const SizedBox(width: 18),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          const Text(
+            'Doctor en route',
+            style: TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              // color: const Color(0xFFF6F4F4),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
               children: [
-                Text(
-                  'Estimated arrival: 10-15 min',
-                  style: theme.textTheme.bodyMedium,
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: const Icon(
+                    Icons.access_time,
+                    color: Colors.black54,
+                    size: 28,
+                  ),
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  '(Update 2 min ago)',
-                  style: theme.textTheme.bodySmall,
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '10:30 AM',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      'Estimated arrival',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
+          const Timeline(),
         ],
       ),
     );
   }
+}
 
-  ///Timeline section
-  Widget _buildTimeline(BuildContext context) {
+class Timeline extends StatelessWidget {
+  const Timeline({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: List.generate(steps.length, (index) {
         final step = steps[index];
         final isLast = index == steps.length - 1;
-        return Row(
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Dot + Line
-            Column(
+            Row(
               children: [
-                Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
+                SizedBox(
+                  width: 30,
+                  height: 30,
+                  child: Icon(
+                    step.isActive ? Icons.check_rounded : Icons.circle_outlined,
                     color: step.isActive ? Colors.black : Colors.grey,
-                    shape: BoxShape.circle,
+                    size: step.isActive ? 24 : 20,
                   ),
                 ),
-                if (!isLast)
-                  Container(
-                    width: 2,
-                    height: 50,
-                    color: step.isActive ? Colors.black : appTheme.gray600,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    step.title,
+                    style: TextStyle(
+                      color: step.isActive ? Colors.black : appTheme.gray600,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
+                ),
               ],
             ),
-            const SizedBox(width: 12),
-            // Text
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Text(
-                  step.title,
-                  style: TextStyle(
-                    color: step.isActive ? Colors.black : appTheme.gray600,
-                    fontSize: 18,
-                  ),
+            if (!isLast)
+              Container(
+                decoration: BoxDecoration(
+                  color: step.isActive ? Colors.black : appTheme.gray600,
+                  borderRadius: BorderRadius.circular(2),
                 ),
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 13,
+                  vertical: 4,
+                ), // Indent for line
+                width: 2,
+                height: 15,
               ),
-            ),
           ],
         );
       }),
     );
   }
-}
-
-class TimelineStep {
-  const TimelineStep(this.title, {required this.isActive});
-  final String title;
-  final bool isActive;
 }

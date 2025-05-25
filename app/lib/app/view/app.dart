@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:medicall/app/routes.dart';
 import 'package:medicall/contants/colorscheme.dart';
 import 'package:medicall/l10n/l10n.dart';
@@ -35,6 +36,9 @@ class App extends StatelessWidget {
             routerConfig: router,
             theme: ThemeData(
               colorScheme: colorScheme,
+              textTheme: GoogleFonts.lexendTextTheme(
+                Theme.of(context).textTheme,
+              ),
               appBarTheme: const AppBarTheme(
                 backgroundColor: Colors.transparent,
                 titleTextStyle: TextStyle(

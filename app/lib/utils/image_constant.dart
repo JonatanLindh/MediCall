@@ -4,4 +4,5 @@ class ImageConstant {
 
   //Common images
   static String imgClock = '$imagePath/fi-rs-time-fast.png';
+  static String imgMap = '$imagePath/map.png';
 }
