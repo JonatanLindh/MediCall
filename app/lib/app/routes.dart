@@ -19,7 +19,7 @@ final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 // Don't have to touch to add routes, `$appRoutes` will be regenerated
 final GoRouter router = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/login',
+  initialLocation: '/patient/timeline',
   routes: $appRoutes,
 );
 
@@ -71,7 +71,7 @@ class CallRoute extends GoRouteData {
 class TimelineRoute extends GoRouteData {
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return TimelineScreen();
+    return const TimelineScreen();
   }
 }
 
@@ -164,7 +164,7 @@ class PatientDashboardRoute extends GoRouteData {
 class PatientTimelineRoute extends GoRouteData {
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return TimelineScreen();
+    return const TimelineScreen();
   }
 }
 
