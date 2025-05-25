@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicall/app/routes.dart';
-import 'package:medicall/contants/colorscheme.dart';
 import 'package:medicall/screens/patient/login/bloc/login_bloc.dart';
 
 class LoginScreen extends StatefulWidget {

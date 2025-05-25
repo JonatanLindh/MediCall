@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:medicall/screens/call/bloc/call_bloc.dart';
 import 'package:livekit_client/livekit_client.dart';
+import 'package:medicall/screens/call/bloc/call_bloc.dart';
 
 class CallScreen extends StatelessWidget {
   const CallScreen({super.key});

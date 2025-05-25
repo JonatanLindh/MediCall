@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:medicall/app/routes.dart';
-import 'package:medicall/contants/colorscheme.dart';
 import 'package:medicall/repositories/doctor/doctor_repository.dart';
-import 'package:medicall/repositories/geo/geo.dart';
 import 'package:medicall/screens/dashboard/cubit/visits_cubit.dart';
-import 'package:medicall/screens/patient/doctor_location/bloc/doctor_bloc.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
