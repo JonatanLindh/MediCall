@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:medicall/app/app_export.dart';
+import 'package:medicall/app/routes.dart';
 
 class TimelineStep {
   const TimelineStep(this.title, {required this.isActive});
@@ -31,27 +32,57 @@ class FloatingActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         spacing: 10,
         children: [
           FilledButton(
-            onPressed: () {},
+            onPressed: () => CallRoute().push<void>(context),
             style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              foregroundColor: Colors.black,
+              backgroundColor: c.secondary,
+              foregroundColor: c.onSecondary,
             ),
-            child: const Text('Call', style: TextStyle(fontSize: 17)),
+            child: const Text(
+              'Call',
+              style: TextStyle(fontSize: 17),
+            ),
           ),
           FilledButton(
-            onPressed: () {},
+            onPressed: () {
+              // Implement message functionality
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Message functionality not implemented :(',
+                  ),
+                  // width: 400,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(20),
+                    ),
+                  ),
+                  margin: EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
+                  showCloseIcon: true,
+                  elevation: 2,
+                ),
+              );
+            },
             style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.tertiary,
-              foregroundColor: Colors.black,
+              backgroundColor: c.tertiary,
+              foregroundColor: c.onTertiary,
             ),
-            child: const Text('Message', style: TextStyle(fontSize: 17)),
+            child: const Text(
+              'Message',
+              style: TextStyle(fontSize: 17),
+            ),
           ),
         ],
       ),

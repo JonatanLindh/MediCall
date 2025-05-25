@@ -74,10 +74,23 @@ class CallInitialUI extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = Theme.of(context).colorScheme;
+
     return Center(
-      child: ElevatedButton(
+      child: FilledButton(
         onPressed: callStart,
-        child: const Text('Start Call'),
+        style: FilledButton.styleFrom(
+          backgroundColor: c.secondary,
+          foregroundColor: c.onSecondary,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          textStyle: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        child: const Text(
+          'Start Call',
+        ),
       ),
     );
   }
