@@ -26,11 +26,11 @@ class DoctorNotificationsScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Notifications'),
         centerTitle: true,
         elevation: 0,
+        backgroundColor: Colors.white,
         foregroundColor: Colors.black,
       ),
       body: ListView.separated(
@@ -40,8 +40,9 @@ class DoctorNotificationsScreen extends StatelessWidget {
           final item = notifications[index];
           return NotificationItem(item: item);
         },
-        separatorBuilder: (_, __) => const Divider(height: 24),
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
       ),
+      backgroundColor: Colors.grey[100],
     );
   }
 }
