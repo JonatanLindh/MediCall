@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:medicall/app/app_export.dart';
 import 'package:medicall/app/routes.dart';
+import 'package:medicall/repositories/geo/bloc/geo_bloc.dart';
+import 'package:medicall/repositories/geo/repo/geo_repository.dart';
+import 'package:medicall/screens/patient/doctor_location/bloc/doctor_bloc.dart';
 
 class TimelineStep {
   const TimelineStep(this.title, {required this.isActive});
@@ -98,20 +103,67 @@ final List<TimelineStep> steps = [
   const TimelineStep('Care completed', isActive: false),
 ];
 
-class DoctorStatus extends StatelessWidget {
+class DoctorStatus extends HookWidget {
   const DoctorStatus({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final showCoordinates = useState(false);
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 20,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Image.asset(ImageConstant.imgMap),
+          GestureDetector(
+            onTap: () => showCoordinates.value = !showCoordinates.value,
+            child: Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.asset(
+                    ImageConstant.imgMap,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20, left: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      BlocBuilder<DoctorBloc, DoctorState>(
+                        builder: (context, state) {
+                          return PositionShower(
+                            icon: Icons.medical_services_rounded,
+                            showPos: showCoordinates.value,
+                            title: 'Doctor',
+                            position: state is DoctorAvailable
+                                ? state.position
+                                : null,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      if (showCoordinates.value)
+                        BlocBuilder<GeoBloc, GeoState>(
+                          builder: (context, state) {
+                            return PositionShower(
+                              icon: Icons.person_pin_circle_rounded,
+                              showPos: showCoordinates.value,
+                              title: 'Patient',
+                              position: state is GeoGotPosition
+                                  ? StrippedPosition.fromPosition(
+                                      state.position,
+                                    )
+                                  : null,
+                            );
+                          },
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
           const Text(
             'Doctor en route',
@@ -224,6 +276,55 @@ class Timeline extends StatelessWidget {
           ],
         );
       }),
+    );
+  }
+}
+
+class PositionShower extends StatelessWidget {
+  const PositionShower({
+    required this.title,
+    required this.showPos,
+    required this.icon,
+    this.position,
+    super.key,
+  });
+
+  final String title;
+  final StrippedPosition? position;
+  final bool showPos;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 60,
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: Colors.redAccent,
+            size: 24,
+          ),
+          const SizedBox(width: 10),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(fontSize: 20),
+              ),
+              if (showPos)
+                Text(
+                  position == null
+                      ? 'No location data available'
+                      : 'Latitude: ${position!.latitude}, Longitude: ${position!.longitude}',
+                  style: const TextStyle(fontSize: 16),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
