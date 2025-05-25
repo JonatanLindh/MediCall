@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:medicall/app/routes.dart';
+import 'package:medicall/repositories/doctor/doctor_repository.dart';
 import 'package:medicall/repositories/geo/geo.dart';
-import 'package:medicall/screens/patient/doctor_location/bloc/doctor_location_bloc.dart';
+import 'package:medicall/screens/dashboard/cubit/visits_cubit.dart';
+import 'package:medicall/screens/patient/doctor_location/bloc/doctor_bloc.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -12,135 +15,140 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Dashboard'),
+        title: const Text(
+          'Dashboard',
+          style: TextStyle(fontSize: 20),
+        ),
       ),
-      body: Center(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              child: ElevatedButton(
-                onPressed: () {
-                  CallRoute().push<void>(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 32,
-                  ),
-                ),
-                child: const Text(
-                  'CALL FOR HELP',
-                  style: TextStyle(fontSize: 40),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Staff is on the way',
-              style: TextStyle(
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(height: 20),
-            BlocBuilder<GeoBloc, GeoState>(
-              builder: (context, state) {
-                if (state is GeoGotPosition) {
-                  return PositionShower(
-                    title: 'Patient Location',
-                    position: StrippedPosition.fromPosition(state.position),
-                  );
-                } else if (state is GeoError) {
-                  return const Text(
-                    'Error getting location',
-                    style: TextStyle(color: Colors.red),
-                  );
-                } else if (state is GeoLoading) {
-                  return const CircularProgressIndicator();
-                } else {
-                  return const Text('No location data available');
-                }
-              },
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              onPressed: () {
-                PatientTimelineRoute().push<void>(context);
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  BlocBuilder<DoctorLocationBloc, DoctorLocationState>(
-                    builder: (context, state) {
-                      if (state is DoctorLocationAvailable) {
-                        return PositionShower(
-                          title: 'Doctor Location',
-                          position: state.position,
-                        );
-                      } else if (state is GeoError) {
-                        return const Text(
-                          'Error getting location',
-                          style: TextStyle(color: Colors.red),
-                        );
-                      } else if (state is GeoLoading) {
-                        return const CircularProgressIndicator();
-                      } else {
-                        return const Text('No location data available');
-                      }
-                    },
-                  ),
-                  const Text(
-                    'Press to go to timeline',
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+      body: showVisits(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+        child: FilledButton(
+          onPressed: () {
+            CallRoute().push<BuildContext>(context);
+          },
+          style: ButtonStyle(
+            elevation: const WidgetStatePropertyAll(4),
+            minimumSize:
+                WidgetStateProperty.all(const Size(double.infinity, 50)),
+            backgroundColor: WidgetStateProperty.all(Colors.redAccent),
+          ),
+          child: const Text('Call For Help'),
         ),
       ),
     );
   }
-}
 
-class PositionShower extends StatelessWidget {
-  const PositionShower({
-    required this.position,
-    required this.title,
-    super.key,
-  });
+  Widget showVisits() {
+    return BlocProvider(
+      create: (context) => Visits(DoctorRepository())..getAllDoctors(),
+      child: BlocBuilder<Visits, VisitsState>(
+        builder: (context, state) {
+          if (state is VisitsInitial || state is VisitsLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (state is VisitsLoaded) {
+            final now = DateTime.now();
+            final todaysVisits = state.visits
+                .where(
+                  (visit) =>
+                      visit.date.year == now.year &&
+                      visit.date.month == now.month &&
+                      visit.date.day == now.day,
+                )
+                .toList();
+            final otherVisits = state.visits
+                .where(
+                  (visit) =>
+                      visit.date.year != now.year ||
+                      visit.date.month != now.month ||
+                      visit.date.day != now.day,
+                )
+                .toList();
+            return Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Todays Visits',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: todaysVisits.length,
+                    itemBuilder: (context, index) {
+                      final visit = todaysVisits[index];
+                      return visitItem(visit, context);
+                    },
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Other Visits',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: otherVisits.length,
+                    itemBuilder: (context, index) {
+                      final visit = otherVisits[index];
+                      return visitItem(visit, context);
+                    },
+                  ),
+                ),
+              ],
+            );
+          }
+          return const Text('You have no visits!');
+        },
+      ),
+    );
+  }
 
-  final String title;
-  final StrippedPosition position;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 30),
-        ),
-        Text(
-          'Latitude: ${position.latitude}, Longitude: ${position.longitude}',
-          style: const TextStyle(fontSize: 16),
-        ),
-      ],
+  Widget visitItem(Visit visit, BuildContext context) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundImage: NetworkImage(visit.doctor.imageUrl),
+        radius: 28,
+      ),
+      title: Text(
+        visit.doctor.name,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      subtitle: Text(
+        DateFormat('dd MMM yyyy, HH:mm').format(visit.date),
+      ),
+      onTap: () {
+        print('Going to doctor with id:${visit.doctor.id}');
+        CallRoute().push<BuildContext>(context);
+        // Add navigation or action here if needed
+      },
     );
   }
 }

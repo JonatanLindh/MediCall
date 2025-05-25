@@ -1,30 +1,33 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:medicall/repositories/doctor/doctor_repository.dart';
 import 'package:medicall/repositories/geo/geo.dart';
 
-part 'doctor_location_event.dart';
-part 'doctor_location_state.dart';
+part 'doctor_event.dart';
+part 'doctor_state.dart';
 
-class DoctorLocationBloc
-    extends Bloc<DoctorLocationEvent, DoctorLocationState> {
-  DoctorLocationBloc({
+class DoctorBloc extends Bloc<DoctorEvent, DoctorState> {
+  DoctorBloc({
     required this.geoRepository,
-  }) : super(DoctorLocationLoading()) {
-    on<DoctorLocationSubscribe>(_onSubscription);
+  }) : super(DoctorLoading()) {
+    on<DoctorLocationSubscribeEvent>(_onLocationSubscription);
   }
 
   final GeoRepository geoRepository;
+  String? doctorId;
 
-  Future<void> _onSubscription(
-    DoctorLocationSubscribe event,
-    Emitter<DoctorLocationState> emit,
+  Future<void> _onLocationSubscription(
+    DoctorLocationSubscribeEvent event,
+    Emitter<DoctorState> emit,
   ) async {
+    if (doctorId == null) return;
+
     await emit.forEach<StrippedPosition>(
-      doctorLocationStream(doctorId: event.doctorId),
-      onData: DoctorLocationAvailable.new,
+      doctorLocationStream(doctorId: doctorId!),
+      onData: DoctorAvailable.new,
       onError: (error, stackTrace) {
         addError(error, stackTrace);
-        return DoctorLocationError(error.toString());
+        return DoctorError(error.toString());
       },
     );
   }
