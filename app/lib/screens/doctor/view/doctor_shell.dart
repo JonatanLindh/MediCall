@@ -28,6 +28,7 @@ class DoctorShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selectedIndex = getCurrentIndex(context);
+    
 
     return Scaffold(
       body: BlocListener<GeoBloc, GeoState>(
@@ -41,43 +42,58 @@ class DoctorShell extends StatelessWidget {
         },
         child: child,
       ),
-      bottomNavigationBar: NavigationBar(
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.document_scanner_outlined),
-            label: 'Reports',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.notifications_outlined),
-            label: 'Notifications',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            label: 'Profile',
-          ),
-        ],
-        selectedIndex: selectedIndex,
-        onDestinationSelected: (int index) {
-          switch (index) {
-            case 0:
-              DoctorHomeRoute().go(context);
-              return;
-            case 1:
-              DoctorReportsRoute().go(context);
-              return;
-            case 2:
-              DoctorNotificationsRoute().go(context);
-              return;
-            case 3:
-              DoctorProfileRoute().go(context);
-              return;
-          }
-        },
+      bottomNavigationBar: Container(
+  decoration: BoxDecoration(
+    color: Colors.white,
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.1),
+        blurRadius: 10,
+        offset: const Offset(0, -2),
       ),
+    ],
+  ),
+  child: NavigationBar(
+    backgroundColor: Colors.white,
+    indicatorColor:  Color.fromARGB(158, 255, 168, 206),
+    destinations: const [
+      NavigationDestination(
+        icon: Icon(Icons.home_outlined),
+        label: 'Home',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.document_scanner_outlined),
+        label: 'Reports',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.notifications_outlined),
+        label: 'Notifications',
+      ),
+      NavigationDestination(
+        icon: Icon(Icons.person_outline),
+        label: 'Profile',
+      ),
+    ],
+    selectedIndex: selectedIndex,
+    onDestinationSelected: (int index) {
+      switch (index) {
+        case 0:
+          DoctorHomeRoute().go(context);
+          return;
+        case 1:
+          DoctorReportsRoute().go(context);
+          return;
+        case 2:
+          DoctorNotificationsRoute().go(context);
+          return;
+        case 3:
+          DoctorProfileRoute().go(context);
+          return;
+      }
+    },
+  ),
+),
+
     );
   }
 }

@@ -15,7 +15,7 @@ class DoctorReportsScreen extends HookWidget {
   Widget build(BuildContext context) {
     final searchController = useTextEditingController();
     final cubit = context.read<DoctorReportsCubit>();
-
+    ReportStatus selectedStatus;
     useEffect(
       () {
         void listener() => cubit.searchChanged(searchController.text);
@@ -35,7 +35,7 @@ class DoctorReportsScreen extends HookWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list),
+            icon: const Icon(Icons.add),
             onPressed: () {
               showModalBottomSheet<void>(
                 context: context,
@@ -138,11 +138,21 @@ class DoctorReportsScreen extends HookWidget {
                     final isAssignedToMe = report.assignedDoctorId ==
                         currentDoctorId; // replace with the current doctor's id
                     return ListTile(
+                      leading: CircleAvatar(
+                        radius:24,
+                        backgroundImage: const AssetImage(
+                          'assets/images/female_woman.webp'), // Replace with actual image path
+                        backgroundColor: Colors.grey[200], // Fallback color if image fails to load
+                          
+                      ),
                       title: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(report
-                              .name), // Assuming 'name' is a String property of Report
+                          Text(report.name,
+                          style: TextStyle(
+                            //fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          )), // Assuming 'name' is a String property of Report
                           const SizedBox(height: 4),
                         ],
                       ),
@@ -183,7 +193,13 @@ class DoctorReportsScreen extends HookWidget {
                                     tapTargetSize:
                                         MaterialTapTargetSize.shrinkWrap,
                                   ),
-                                  child: const Text('Unassign'),
+                                  child: const Text('Unassign',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Color(0xFFFFA8CD),
+                                        fontWeight: FontWeight.bold
+                                      )),
+                                  
                                 )
                             else
                               // If the report is assigned to another doctor, show the assigned doctor's name
@@ -208,9 +224,14 @@ class DoctorReportsScreen extends HookWidget {
                                 minimumSize: const Size(0, 0),
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
-                              child: const Text('Assign to me'),
+                              child: const Text('Assign to me',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Color(0xFF9AEF99),
+                                    fontWeight: FontWeight.bold,
+                                  )
                             ),
-                        ],
+                      )],
                       ),
                     );
                   },
@@ -237,15 +258,34 @@ class FilterButton extends StatelessWidget {
   final String text;
 
   @override
-  Widget build(BuildContext context) {
-    return TextButton(
-      style: TextButton.styleFrom(
-        backgroundColor: state.statusFilter == filter
-            ? Theme.of(context).highlightColor
-            : Colors.transparent,
-      ),
-      onPressed: () => context.read<DoctorReportsCubit>().filterStatus(filter),
-      child: Text(text),
-    );
-  }
+Widget build(BuildContext context) {
+  final isSelected = state.statusFilter == filter;
+
+  return GestureDetector(
+    onTap: () => context.read<DoctorReportsCubit>().filterStatus(filter),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Text(
+            text,
+            style: TextStyle(
+              fontWeight: FontWeight.bold, // Make the text bold
+              color: isSelected ? Colors.black : Colors.grey[600],
+            ),
+          ),
+        ),
+        Container(
+          height: 3,
+          width: 80,
+          decoration: BoxDecoration(
+            color: isSelected ? const Color(0xFFFFA8CD) : Colors.transparent,
+            borderRadius: BorderRadius.circular(1),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 }

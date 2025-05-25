@@ -88,6 +88,7 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
   return Card(
     elevation: 3,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    color: Colors.white,
     //margin: const EdgeInsets.all(16),
     child: Padding(
       padding: const EdgeInsets.all(20),
@@ -106,7 +107,8 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
             icon: Icon(actionIcon),
             label: Text(statusText, style: const TextStyle(fontSize: 20)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
+              backgroundColor: const Color.fromARGB(174, 154, 239, 153), 
+              //color
               foregroundColor: Colors.white,
               minimumSize: const Size.fromHeight(50),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

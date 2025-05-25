@@ -94,11 +94,12 @@ class DoctorHomeScreenContent extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
+                    color: Colors.white,
                     elevation: 2,
                     child: ListTile(
                       leading: Icon(
                         tasks[index]['icon']! as IconData,
-                        color: Colors.blue,
+                        color: Colors.blue, // Use a consistent color
                       ),
                       title: Text(tasks[index]['text']! as String),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
