@@ -8,7 +8,6 @@ part of 'routes.dart';
 
 List<RouteBase> get $appRoutes => [
       $homeRoute,
-      $timelineRoute,
       $doctorShellRoute,
       $patientShellRoute,
     ];
@@ -103,6 +102,7 @@ extension $CallRouteExtension on CallRoute {
 
   void replace(BuildContext context) => context.replace(location);
 }
+
 
 extension $MessageRouteExtension on MessageRoute {
   static MessageRoute _fromState(GoRouterState state) => MessageRoute();

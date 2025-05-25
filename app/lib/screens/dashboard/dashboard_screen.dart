@@ -24,7 +24,7 @@ class DashboardScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
         child: FilledButton(
           onPressed: () {
-            CallRoute().push<BuildContext>(context);
+            CallRoute().push<void>(context);
           },
           style: ButtonStyle(
             textStyle: WidgetStatePropertyAll(
@@ -152,8 +152,7 @@ class DashboardScreen extends StatelessWidget {
         DateFormat('dd MMM yyyy, HH:mm').format(visit.date),
       ),
       onTap: () {
-        print('Going to doctor with id:${visit.doctor.id}');
-        CallRoute().push<BuildContext>(context);
+        PatientTimelineRoute().push<void>(context);
         // Add navigation or action here if needed
       },
     );

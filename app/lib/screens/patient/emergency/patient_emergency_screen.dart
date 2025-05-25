@@ -23,7 +23,7 @@ class TimelineScreen extends StatelessWidget {
         title: const Text('Visit'),
         centerTitle: true,
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: const FloatingActionButtons(),
       body: const DoctorStatus(),
     );
@@ -49,11 +49,12 @@ class FloatingActionButtons extends StatelessWidget {
             onPressed: () => CallRoute().push<void>(context),
             style: FilledButton.styleFrom(
               backgroundColor: c.secondary,
+              padding: const EdgeInsets.all(15),
               foregroundColor: c.onSecondary,
             ),
-            child: const Text(
-              'Call',
-              style: TextStyle(fontSize: 17),
+            child: const Icon(
+              Icons.call,
+              size: 50,
             ),
           ),
           FilledButton(
@@ -83,10 +84,11 @@ class FloatingActionButtons extends StatelessWidget {
             style: FilledButton.styleFrom(
               backgroundColor: c.tertiary,
               foregroundColor: c.onTertiary,
+              padding: const EdgeInsets.all(20),
             ),
-            child: const Text(
-              'Message',
-              style: TextStyle(fontSize: 17),
+            child: const Icon(
+              Icons.chat,
+              size: 45,
             ),
           ),
         ],
@@ -95,20 +97,12 @@ class FloatingActionButtons extends StatelessWidget {
   }
 }
 
-final List<TimelineStep> steps = [
-  const TimelineStep('Receiving the emergency call', isActive: true),
-  const TimelineStep('Dispatching emergency resources', isActive: true),
-  const TimelineStep('Help is on the way', isActive: true),
-  const TimelineStep('Arrival at the scene', isActive: false),
-  const TimelineStep('Care completed', isActive: false),
-];
-
 class DoctorStatus extends HookWidget {
   const DoctorStatus({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final showCoordinates = useState(false);
+    final expandMap = useState(false);
 
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -116,54 +110,67 @@ class DoctorStatus extends HookWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 20,
         children: [
-          GestureDetector(
-            onTap: () => showCoordinates.value = !showCoordinates.value,
-            child: Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.asset(
-                    ImageConstant.imgMap,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20, left: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      BlocBuilder<DoctorBloc, DoctorState>(
-                        builder: (context, state) {
-                          return PositionShower(
-                            icon: Icons.medical_services_rounded,
-                            showPos: showCoordinates.value,
-                            title: 'Doctor',
-                            position: state is DoctorAvailable
-                                ? state.position
-                                : null,
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      if (showCoordinates.value)
-                        BlocBuilder<GeoBloc, GeoState>(
-                          builder: (context, state) {
-                            return PositionShower(
-                              icon: Icons.person_pin_circle_rounded,
-                              showPos: showCoordinates.value,
-                              title: 'Patient',
-                              position: state is GeoGotPosition
-                                  ? StrippedPosition.fromPosition(
-                                      state.position,
-                                    )
-                                  : null,
-                            );
-                          },
+          Stack(
+            children: [
+              GestureDetector(
+                onTap: () => expandMap.value = !expandMap.value,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final width = constraints.maxWidth;
+                    final aspectRatio = expandMap.value ? 0.8 : 3.0;
+                    final height = width / aspectRatio;
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 400),
+                        curve: Curves.easeInOut,
+                        width: width,
+                        height: height,
+                        child: Image.asset(
+                          ImageConstant.imgMap,
+                          fit: BoxFit.cover,
                         ),
-                    ],
-                  ),
+                      ),
+                    );
+                  },
                 ),
-              ],
-            ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20, left: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BlocBuilder<DoctorBloc, DoctorState>(
+                      builder: (context, state) {
+                        return PositionShower(
+                          icon: Icons.medical_services_rounded,
+                          showPos: false && expandMap.value,
+                          title: 'Doctor',
+                          position:
+                              state is DoctorAvailable ? state.position : null,
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    // if (expandMap.value)
+                    BlocBuilder<GeoBloc, GeoState>(
+                      builder: (context, state) {
+                        return PositionShower(
+                          icon: Icons.person_pin_circle_rounded,
+                          showPos: false && expandMap.value,
+                          title: 'Patient',
+                          position: state is GeoGotPosition
+                              ? StrippedPosition.fromPosition(
+                                  state.position,
+                                )
+                              : null,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           const Text(
             'Doctor en route',
@@ -224,58 +231,74 @@ class DoctorStatus extends HookWidget {
   }
 }
 
+final List<TimelineStep> steps = [
+  const TimelineStep('Receiving the emergency call', isActive: true),
+  const TimelineStep('Dispatching emergency resources', isActive: true),
+  const TimelineStep('Help is on the way', isActive: true),
+  const TimelineStep('Arrival at the scene', isActive: false),
+  const TimelineStep('Care completed', isActive: false),
+];
+
 class Timeline extends StatelessWidget {
   const Timeline({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: List.generate(steps.length, (index) {
-        final step = steps[index];
-        final isLast = index == steps.length - 1;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return Expanded(
+      child: ListView(
+        padding: const EdgeInsets.only(bottom: 50),
+        children: [
+          ...List.generate(steps.length, (index) {
+            final step = steps[index];
+            final isLast = index == steps.length - 1;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: Icon(
-                    step.isActive ? Icons.check_rounded : Icons.circle_outlined,
-                    color: step.isActive ? Colors.black : Colors.grey,
-                    size: step.isActive ? 24 : 20,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    step.title,
-                    style: TextStyle(
-                      color: step.isActive ? Colors.black : appTheme.gray600,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: Icon(
+                        step.isActive
+                            ? Icons.check_rounded
+                            : Icons.circle_outlined,
+                        color: step.isActive ? Colors.black : Colors.grey,
+                        size: step.isActive ? 24 : 20,
+                      ),
                     ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        step.title,
+                        style: TextStyle(
+                          color:
+                              step.isActive ? Colors.black : appTheme.gray600,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (!isLast)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: step.isActive ? Colors.black : appTheme.gray600,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 13,
+                      vertical: 4,
+                    ),
+                    width: 2,
+                    height: 15,
                   ),
-                ),
               ],
-            ),
-            if (!isLast)
-              Container(
-                decoration: BoxDecoration(
-                  color: step.isActive ? Colors.black : appTheme.gray600,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-                margin: const EdgeInsets.symmetric(
-                  horizontal: 13,
-                  vertical: 4,
-                ), // Indent for line
-                width: 2,
-                height: 15,
-              ),
-          ],
-        );
-      }),
+            );
+          }),
+        ],
+      ),
     );
   }
 }
@@ -296,35 +319,32 @@ class PositionShower extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 60,
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: Colors.redAccent,
-            size: 24,
-          ),
-          const SizedBox(width: 10),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+    return Row(
+      children: [
+        Icon(
+          icon,
+          color: Colors.redAccent,
+          size: 24,
+        ),
+        const SizedBox(width: 10),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontSize: 20),
+            ),
+            if (showPos)
               Text(
-                title,
-                style: const TextStyle(fontSize: 20),
+                position == null
+                    ? 'No location data available'
+                    : 'Latitude: ${position!.latitude}, \nLongitude: ${position!.longitude}',
+                style: const TextStyle(fontSize: 16),
               ),
-              if (showPos)
-                Text(
-                  position == null
-                      ? 'No location data available'
-                      : 'Latitude: ${position!.latitude}, Longitude: ${position!.longitude}',
-                  style: const TextStyle(fontSize: 16),
-                ),
-            ],
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 }
