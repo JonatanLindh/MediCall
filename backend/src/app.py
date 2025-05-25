@@ -1,9 +1,12 @@
+from livekit import api
+import random
 from http.client import OK, UNAUTHORIZED
 import json
 from bcrypt import gensalt, hashpw
 import bcrypt
 from prisma import Base64, Prisma
 from prisma.models import Doctor, Patient
+from prisma.bases import BaseDoctor
 from robyn import Response, Robyn, WebSocket
 from robyn.types import Body
 
@@ -51,6 +54,19 @@ async def register_doctor(request, body: RegisterBody):
     )
 
 
+class DoctorNoPassword(BaseDoctor):
+    id: str
+    firstName: str
+    lastName: str
+    email: str
+
+
+@app.get("/api/doctors")
+async def get_doctors(request):
+    doctors = await DoctorNoPassword.prisma().find_many()
+    return json.dumps(doctors, indent=2)
+
+
 @app.post("/api/patients/register")
 async def register_patient(request, body: RegisterBody):
     data = request.json()
@@ -90,8 +106,6 @@ async def update_doctor_location(request, body: UpdateDoctorLocationBody):
     latitude = data["latitude"]
     longitude = data["longitude"]
 
-    print(f"Updating doctor {id} location to {latitude}, {longitude}")
-
     await Doctor.prisma().update(
         where={"id": id},
         data={
@@ -113,6 +127,44 @@ async def get_doctor_location(request):
             {
                 "latitude": doctor.latitude,
                 "longitude": doctor.longitude,
+            },
+            indent=2,
+        )
+    else:
+        return Response(status_code=404, description="Doctor not found", headers={})
+
+
+class UpdateDoctorStatusBody(Body):
+    status: str
+
+
+# TODO add auth
+@app.patch("/api/doctors/:id/status")
+async def update_doctor_status(request, body: UpdateDoctorStatusBody):
+    id = request.path_params["id"]
+    data = request.json()
+    status = data["status"]
+
+    print(f"Updating doctor {id} status to {status}")
+
+    await Doctor.prisma().update(
+        where={"id": id},
+        data={
+            "status": status,
+        },
+    )
+
+
+@app.get("/api/doctors/:id/status")
+async def get_doctor_status(request):
+    id = request.path_params["id"]
+    doctor = await Doctor.prisma().find_unique(
+        where={"id": id},
+    )
+    if doctor:
+        return json.dumps(
+            {
+                "status": doctor.status,
             },
             indent=2,
         )
@@ -145,9 +197,6 @@ async def login(request, body: LoginBody):
     return Response(status_code=UNAUTHORIZED, headers={}, description="Unauthorized")
 
 
-from livekit import protocol, api
-import random
-
 @app.get("/api/getvideotoken")
 async def getvideotoken(request):
     roomName = "my-room"
@@ -157,32 +206,40 @@ async def getvideotoken(request):
     LK_API_SECRET = "api_secret"
     identity = str(random.randint(1000, 9999))
     print(identity)
-    token = api.AccessToken(api_key=LK_API_KEY, api_secret=LK_API_SECRET)  # 1 hour validity
+    token = api.AccessToken(
+        api_key=LK_API_KEY, api_secret=LK_API_SECRET
+    )  # 1 hour validity
     token.with_identity(identity=identity)
     token.with_name(name=identity)
-    token.with_grants(api.VideoGrants(
-        room_join=True,
-        room="my-room",
-    ))
-    
-    videotoken = token.to_jwt()
-    
-    print (videotoken)
+    token.with_grants(
+        api.VideoGrants(
+            room_join=True,
+            room="my-room",
+        )
+    )
 
-    return Response(status_code=OK, headers={}, description=videotoken )
+    videotoken = token.to_jwt()
+
+    print(videotoken)
+
+    return Response(status_code=OK, headers={}, description=videotoken)
 
 
 # NETWORKIP = "10.0.2.65"
 NETWORKIP = "192.168.9.51"
+
+
 async def createRoom(roomName):
     try:
         LK_API_KEY = "api_key"
         LK_API_SECRET = "api_secret"
         # LIVEKITURL = "https://l6mmsls1-7880.euw.devtunnels.ms/"
         LIVEKITURL = f"http://{NETWORKIP}:7880"
-        lkapi = api.LiveKitAPI(LIVEKITURL,LK_API_KEY,LK_API_SECRET)
-        rooms = (await lkapi.room.list_rooms(api.ListRoomsRequest(names=[roomName]))).rooms
-        if (len(rooms) > 0): 
+        lkapi = api.LiveKitAPI(LIVEKITURL, LK_API_KEY, LK_API_SECRET)
+        rooms = (
+            await lkapi.room.list_rooms(api.ListRoomsRequest(names=[roomName]))
+        ).rooms
+        if len(rooms) > 0:
             return
 
         room_info = await lkapi.room.create_room(
