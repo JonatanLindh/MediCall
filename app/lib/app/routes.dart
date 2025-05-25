@@ -10,6 +10,8 @@ import 'package:medicall/screens/doctor/doctor.dart';
 import 'package:medicall/screens/patient/doctor_location/bloc/doctor_bloc.dart';
 import 'package:medicall/screens/patient/login/view/register_screen.dart';
 import 'package:medicall/screens/patient/patient.dart';
+import 'package:medicall/screens/message/message_screen.dart';
+
 
 part 'routes.g.dart';
 
@@ -30,6 +32,7 @@ final GoRouter router = GoRouter(
     TypedGoRoute<LoginRoute>(path: '/login'),
     TypedGoRoute<RegisterRoute>(path: '/register'),
     TypedGoRoute<CallRoute>(path: '/call'),
+    TypedGoRoute<MessageRoute>(path: '/message'),
   ],
 )
 @immutable
@@ -178,5 +181,13 @@ class FeedbackRoute extends GoRouteData {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const FeedbackScreen();
+  }
+}
+
+@immutable
+class MessageRoute extends GoRouteData {
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const MessageScreen();
   }
 }
