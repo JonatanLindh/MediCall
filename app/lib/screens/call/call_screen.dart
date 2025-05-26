@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:livekit_client/livekit_client.dart';
+import 'package:medicall/repositories/call/call_repository.dart';
 import 'package:medicall/screens/call/bloc/call_bloc.dart';
 
 class CallScreen extends StatelessWidget {
-  const CallScreen({super.key});
+  const CallScreen({super.key, this.roomNameToConnect = ''});
 
+  final String roomNameToConnect;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,9 +16,12 @@ class CallScreen extends StatelessWidget {
         title: const Text('Call Screen'),
       ),
       body: BlocProvider(
-        create: (context) => CallBloc(),
+        create: (context) => CallBloc(callRepository: CallRepository()),
         child: BlocBuilder<CallBloc, CallState>(
-          builder: (context, state) => DisplayAppropriateScreen(state: state),
+          builder: (context, state) => DisplayAppropriateScreen(
+            state: state,
+            roomNameToConnect: roomNameToConnect,
+          ),
         ),
       ),
     );
@@ -24,15 +29,18 @@ class CallScreen extends StatelessWidget {
 }
 
 class DisplayAppropriateScreen extends StatelessWidget {
-  const DisplayAppropriateScreen({required this.state, super.key});
+  const DisplayAppropriateScreen({
+    required this.state,
+    this.roomNameToConnect = '',
+    super.key,
+  });
   final CallState state;
+  final String roomNameToConnect;
 
   @override
   Widget build(BuildContext context) {
     void callStart() {
-      context
-          .read<CallBloc>()
-          .add(CallStartEvent('IDFORANOTHERUSERORSOMETHING'));
+      context.read<CallBloc>().add(CallStartEvent(roomNameToConnect));
     }
 
     void callCancel() {
@@ -49,6 +57,7 @@ class DisplayAppropriateScreen extends StatelessWidget {
         localParticipant: answered.localParticipant,
         remoteParticipants: answered.remoteParticipants,
         callCancel: callCancel,
+        isDoctor: roomNameToConnect.isNotEmpty,
       );
     } else if (state is CallError) {
       final error = state as CallError;
@@ -124,11 +133,13 @@ class CallAnsweredUI extends StatelessWidget {
     required this.localParticipant,
     required this.remoteParticipants,
     required this.callCancel,
+    this.isDoctor = false,
     super.key,
   });
   final Participant localParticipant;
   final List<Participant> remoteParticipants;
   final VoidCallback callCancel;
+  final bool isDoctor;
 
   @override
   Widget build(BuildContext context) {
@@ -154,6 +165,7 @@ class CallAnsweredUI extends StatelessWidget {
                     HoveringVideo(
                       participant: localParticipant,
                       constraints: constraints,
+                      isDoctor: isDoctor,
                     ),
                 ],
               );
@@ -212,11 +224,13 @@ class HoveringVideo extends StatefulWidget {
   const HoveringVideo({
     required this.participant,
     required this.constraints,
+    this.isDoctor = false,
     super.key,
   });
 
   final Participant participant;
   final BoxConstraints constraints;
+  final bool isDoctor;
 
   @override
   State<HoveringVideo> createState() => _HoveringVideoState();
@@ -259,6 +273,7 @@ class _HoveringVideoState extends State<HoveringVideo> {
                 height: widget.constraints.maxHeight * 0.25,
                 child: ParticipantBlock(
                   participant: widget.participant,
+                  isDoctor: widget.isDoctor,
                 ),
               );
               return Draggable<int>(
@@ -307,9 +322,13 @@ class DragCornerTarget extends StatelessWidget {
 }
 
 class ParticipantBlock extends StatelessWidget {
-  const ParticipantBlock({required this.participant, super.key});
+  const ParticipantBlock({
+    required this.participant,
+    this.isDoctor = false,
+    super.key,
+  });
   final Participant participant;
-
+  final bool isDoctor;
   @override
   Widget build(BuildContext context) {
     const colors = [
@@ -323,7 +342,6 @@ class ParticipantBlock extends StatelessWidget {
         .map((v) => v.track! as VideoTrack)
         .toList();
 
-    print(participant.identity.hashCode);
     // Instead of a simple ColoredBox, use a gradient with multiple colors for better differentiation
     // Use a more varied pattern for color selection to maximize combinations
     final hash = participant.identity.hashCode.abs();
@@ -353,7 +371,9 @@ class ParticipantBlock extends StatelessWidget {
             child: Opacity(
               opacity: 1, // Adjust for desired effect
               child: Image.network(
-                'https://cdn-icons-png.flaticon.com/512/9267/9267565.png',
+                isDoctor
+                    ? 'https://cdn-icons-png.freepik.com/256/16841/16841984.png?semt=ais_hybrid'
+                    : 'https://cdn-icons-png.flaticon.com/512/9267/9267565.png',
                 fit: BoxFit.contain,
                 width: double.infinity, // Adjust height as needed
                 alignment: Alignment.bottomCenter,

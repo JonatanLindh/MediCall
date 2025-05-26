@@ -12,7 +12,6 @@ import 'package:medicall/screens/patient/login/view/register_screen.dart';
 import 'package:medicall/screens/patient/patient.dart';
 import 'package:medicall/screens/message/message_screen.dart';
 
-
 part 'routes.g.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -21,7 +20,7 @@ final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 // Don't have to touch to add routes, `$appRoutes` will be regenerated
 final GoRouter router = GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/patient/timeline',
+  initialLocation: '/',
   routes: $appRoutes,
 );
 
@@ -61,9 +60,12 @@ class RegisterRoute extends GoRouteData {
 
 @immutable
 class CallRoute extends GoRouteData {
+  const CallRoute({this.roomNameToConnect = ''});
+
+  final String roomNameToConnect;
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const CallScreen();
+    return CallScreen(roomNameToConnect: roomNameToConnect);
   }
 }
 

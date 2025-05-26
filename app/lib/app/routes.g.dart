@@ -87,10 +87,17 @@ extension $RegisterRouteExtension on RegisterRoute {
 }
 
 extension $CallRouteExtension on CallRoute {
-  static CallRoute _fromState(GoRouterState state) => CallRoute();
+  static CallRoute _fromState(GoRouterState state) => CallRoute(
+        roomNameToConnect:
+            state.uri.queryParameters['room-name-to-connect'] ?? '',
+      );
 
   String get location => GoRouteData.$location(
         '/call',
+        queryParams: {
+          if (roomNameToConnect != '')
+            'room-name-to-connect': roomNameToConnect,
+        },
       );
 
   void go(BuildContext context) => context.go(location);
@@ -102,35 +109,12 @@ extension $CallRouteExtension on CallRoute {
 
   void replace(BuildContext context) => context.replace(location);
 }
-
 
 extension $MessageRouteExtension on MessageRoute {
   static MessageRoute _fromState(GoRouterState state) => MessageRoute();
 
   String get location => GoRouteData.$location(
         '/message',
-      );
-
-  void go(BuildContext context) => context.go(location);
-
-  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
-
-  void pushReplacement(BuildContext context) =>
-      context.pushReplacement(location);
-
-  void replace(BuildContext context) => context.replace(location);
-}
-
-RouteBase get $timelineRoute => GoRouteData.$route(
-      path: '/timeline',
-      factory: $TimelineRouteExtension._fromState,
-    );
-
-extension $TimelineRouteExtension on TimelineRoute {
-  static TimelineRoute _fromState(GoRouterState state) => TimelineRoute();
-
-  String get location => GoRouteData.$location(
-        '/timeline',
       );
 
   void go(BuildContext context) => context.go(location);

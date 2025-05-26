@@ -13,10 +13,12 @@ from robyn.types import Body
 app = Robyn(__file__)
 websocket = WebSocket(app, "/ws")
 prisma = Prisma(auto_register=True)
-
+global lkapi
 
 @app.startup_handler
 async def startup_handler() -> None:
+    global lkapi 
+    lkapi = api.LiveKitAPI(LIVEKITURL, LK_API_KEY, LK_API_SECRET)
     await prisma.connect()
 
 
@@ -24,6 +26,7 @@ async def startup_handler() -> None:
 async def shutdown_handler() -> None:
     if prisma.is_connected():
         await prisma.disconnect()
+    await lkapi.aclose()  
 
 
 class RegisterBody(Body):
@@ -197,15 +200,53 @@ async def login(request, body: LoginBody):
     return Response(status_code=UNAUTHORIZED, headers={}, description="Unauthorized")
 
 
-@app.get("/api/getvideotoken")
-async def getvideotoken(request):
-    roomName = "my-room"
-    await createRoom("my-room")
+NETWORKIP = "10.0.12.4"
+# NETWORKIP = "192.168.9.51"
+LK_API_KEY = "api_key"
+LK_API_SECRET = "api_secret"
+# LIVEKITURL = "https://l6mmsls1-7880.euw.devtunnels.ms/"
+LIVEKITURL = f"http://{NETWORKIP}:7880"
 
-    LK_API_KEY = "api_key"
-    LK_API_SECRET = "api_secret"
+@app.get("/api/getvideotoken")
+async def get_videotoken(request):
     identity = str(random.randint(1000, 9999))
     print(identity)
+
+    roomName = identity
+    await createRoom(roomName)
+
+    videotoken = videotokenFrom(identity,roomName)
+
+    print(videotoken)
+
+    return Response(status_code=OK, headers={}, description=videotoken)
+
+
+@app.get("/api/getvideotoken/:roomName")
+async def get_videotoken_with_roomname(request):
+    print("HAHAHAAH")
+    identity = str(random.randint(1000, 9999))
+    print(identity)
+
+    roomName =  request.path_params["roomName"]
+
+    videotoken = videotokenFrom(identity,roomName)
+
+    print(videotoken)
+
+    return Response(status_code=OK, headers={}, description=videotoken)
+
+
+@app.get("/api/getallrooms")
+async def get_all_rooms(request):
+    rooms = await getAllRooms()
+    roomNames = [room.name for room in  rooms]
+    
+    return Response(status_code=OK, headers={}, description=json.dumps(roomNames))
+
+
+
+def videotokenFrom(identity, roomName):
     token = api.AccessToken(
         api_key=LK_API_KEY, api_secret=LK_API_SECRET
     )  # 1 hour validity
@@ -214,41 +255,29 @@ async def getvideotoken(request):
     token.with_grants(
         api.VideoGrants(
             room_join=True,
-            room="my-room",
+            room=roomName,
         )
     )
 
     videotoken = token.to_jwt()
-
-    print(videotoken)
-
-    return Response(status_code=OK, headers={}, description=videotoken)
-
-
-# NETWORKIP = "10.0.2.65"
-NETWORKIP = "192.168.9.51"
-
+    return videotoken
 
 async def createRoom(roomName):
-    try:
-        LK_API_KEY = "api_key"
-        LK_API_SECRET = "api_secret"
-        # LIVEKITURL = "https://l6mmsls1-7880.euw.devtunnels.ms/"
-        LIVEKITURL = f"http://{NETWORKIP}:7880"
-        lkapi = api.LiveKitAPI(LIVEKITURL, LK_API_KEY, LK_API_SECRET)
-        rooms = (
-            await lkapi.room.list_rooms(api.ListRoomsRequest(names=[roomName]))
-        ).rooms
-        if len(rooms) > 0:
-            return
+    rooms = (
+        await lkapi.room.list_rooms(api.ListRoomsRequest(names=[roomName]))
+    ).rooms
+    if len(rooms) > 0:
+        return
+    room_info = await lkapi.room.create_room(
+        api.CreateRoomRequest(name=roomName, empty_timeout=5),
+    )
 
-        room_info = await lkapi.room.create_room(
-            api.CreateRoomRequest(name=roomName),
-        )
-        print(room_info)
-    finally:
-        await lkapi.aclose()
+
+async def getAllRooms():
+    rooms = ( await lkapi.room.list_rooms(api.ListRoomsRequest())).rooms
+    return rooms
 
 
 if __name__ == "__main__":
     app.start(host="0.0.0.0", port=8080)
+
