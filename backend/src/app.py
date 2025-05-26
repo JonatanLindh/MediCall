@@ -242,7 +242,7 @@ async def getvideotoken(request):
 
 
 # NETWORKIP = "10.0.2.65"
-NETWORKIP = "100.80.52.9"
+NETWORKIP = "172.20.10.8"
 
 
 async def createRoom(roomName):

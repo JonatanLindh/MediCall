@@ -6,7 +6,7 @@
 // const String NETWORK_IP = '192.168.165.51';
 // const String NETWORK_IP = '192.168.165.186';
 
-const String NETWORK_IP = '100.80.52.9';
+const String NETWORK_IP = '172.20.10.8';
 
 const String apiUrl = 'http://$NETWORK_IP:8080/api';
 const String callUrl = 'http://$NETWORK_IP:7880';
