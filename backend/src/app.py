@@ -1,5 +1,3 @@
-from livekit import api
-import random
 from http.client import OK, UNAUTHORIZED
 import json
 from bcrypt import gensalt, hashpw
@@ -7,18 +5,16 @@ import bcrypt
 from prisma import Base64, Prisma
 from prisma.models import Doctor, Patient
 from prisma.bases import BaseDoctor
-from robyn import Response, Robyn, WebSocket
+from robyn import Response, Robyn, WebSocket, jsonify
 from robyn.types import Body
 
 app = Robyn(__file__)
 websocket = WebSocket(app, "/ws")
 prisma = Prisma(auto_register=True)
-global lkapi
+
 
 @app.startup_handler
 async def startup_handler() -> None:
-    global lkapi 
-    lkapi = api.LiveKitAPI(LIVEKITURL, LK_API_KEY, LK_API_SECRET)
     await prisma.connect()
 
 
@@ -26,7 +22,6 @@ async def startup_handler() -> None:
 async def shutdown_handler() -> None:
     if prisma.is_connected():
         await prisma.disconnect()
-    await lkapi.aclose()  
 
 
 class RegisterBody(Body):
@@ -36,7 +31,7 @@ class RegisterBody(Body):
     password: str
 
 
-@app.post("/api/doctors")
+@app.post("/api/doctors/register")
 async def register_doctor(request, body: RegisterBody):
     data = request.json()
 
@@ -47,13 +42,23 @@ async def register_doctor(request, body: RegisterBody):
 
     pass_hash = hashpw(password.encode("utf-8"), gensalt())
 
-    await Doctor.prisma().create(
+    doctor = await Doctor.prisma().create(
         data={
             "firstName": first_name,
             "lastName": last_name,
             "email": email,
             "password_hash": Base64.encode(pass_hash),
         },
+    )
+
+    return Response(
+        status_code=201,
+        headers={},
+        description=jsonify(
+            {
+                "id": doctor.id,
+            },
+        ),
     )
 
 
@@ -80,7 +85,7 @@ async def register_patient(request, body: RegisterBody):
 
     pass_hash = hashpw(password.encode("utf-8"), gensalt())
 
-    await Patient.prisma().create(
+    patient = await Patient.prisma().create(
         data={
             "firstName": first_name,
             "lastName": last_name,
@@ -92,7 +97,11 @@ async def register_patient(request, body: RegisterBody):
     return Response(
         status_code=201,
         headers={},
-        description="Patient registered successfully",
+        description=jsonify(
+            {
+                "id": patient.id,
+            },
+        ),
     )
 
 
@@ -108,6 +117,8 @@ async def update_doctor_location(request, body: UpdateDoctorLocationBody):
     data = request.json()
     latitude = data["latitude"]
     longitude = data["longitude"]
+
+    print(f"Updating doctor {id} location to {latitude}, {longitude}")
 
     await Doctor.prisma().update(
         where={"id": id},
@@ -137,44 +148,6 @@ async def get_doctor_location(request):
         return Response(status_code=404, description="Doctor not found", headers={})
 
 
-class UpdateDoctorStatusBody(Body):
-    status: str
-
-
-# TODO add auth
-@app.patch("/api/doctors/:id/status")
-async def update_doctor_status(request, body: UpdateDoctorStatusBody):
-    id = request.path_params["id"]
-    data = request.json()
-    status = data["status"]
-
-    print(f"Updating doctor {id} status to {status}")
-
-    await Doctor.prisma().update(
-        where={"id": id},
-        data={
-            "status": status,
-        },
-    )
-
-
-@app.get("/api/doctors/:id/status")
-async def get_doctor_status(request):
-    id = request.path_params["id"]
-    doctor = await Doctor.prisma().find_unique(
-        where={"id": id},
-    )
-    if doctor:
-        return json.dumps(
-            {
-                "status": doctor.status,
-            },
-            indent=2,
-        )
-    else:
-        return Response(status_code=404, description="Doctor not found", headers={})
-
-
 class LoginBody(Body):
     email: str
     password: str
@@ -194,59 +167,61 @@ async def login(request, body: LoginBody):
         password.encode("utf-8"), Base64.decode(user.password_hash)
     ):
         print(f"User {user.id} logged in")
-        return Response(status_code=OK, headers={}, description="OK")
+        return Response(
+            status_code=OK,
+            headers={},
+            description=jsonify(
+                {
+                    "id": user.id,
+                }
+            ),
+        )
 
     print("Invalid credentials")
     return Response(status_code=UNAUTHORIZED, headers={}, description="Unauthorized")
 
 
-NETWORKIP = "10.0.12.4"
-# NETWORKIP = "192.168.9.51"
-LK_API_KEY = "api_key"
-LK_API_SECRET = "api_secret"
-# LIVEKITURL = "https://l6mmsls1-7880.euw.devtunnels.ms/"
-LIVEKITURL = f"http://{NETWORKIP}:7880"
+@app.post("/api/doctors/login")
+async def doctor_login(request, body: LoginBody):
+    data = request.json()
+    email = data.get("email")
+    password = data.get("password")
+
+    user = await Doctor.prisma().find_first(
+        where={"email": email},
+    )
+
+    if user and bcrypt.checkpw(
+        password.encode("utf-8"), Base64.decode(user.password_hash)
+    ):
+        print(f"Doctor {user.id} logged in")
+        return Response(
+            status_code=OK,
+            headers={},
+            description=jsonify(
+                {
+                    "id": user.id,
+                }
+            ),
+        )
+
+    print("Invalid credentials")
+    return Response(status_code=UNAUTHORIZED, headers={}, description="Unauthorized")
+
+
+from livekit import api
+import random
+
 
 @app.get("/api/getvideotoken")
-async def get_videotoken(request):
+async def getvideotoken(request):
+    roomName = "my-room"
+    await createRoom("my-room")
+
+    LK_API_KEY = "api_key"
+    LK_API_SECRET = "api_secret"
     identity = str(random.randint(1000, 9999))
     print(identity)
-
-    roomName = identity
-    await createRoom(roomName)
-
-    videotoken = videotokenFrom(identity,roomName)
-
-    print(videotoken)
-
-    return Response(status_code=OK, headers={}, description=videotoken)
-
-
-@app.get("/api/getvideotoken/:roomName")
-async def get_videotoken_with_roomname(request):
-    print("HAHAHAAH")
-    identity = str(random.randint(1000, 9999))
-    print(identity)
-
-    roomName =  request.path_params["roomName"]
-
-    videotoken = videotokenFrom(identity,roomName)
-
-    print(videotoken)
-
-    return Response(status_code=OK, headers={}, description=videotoken)
-
-
-@app.get("/api/getallrooms")
-async def get_all_rooms(request):
-    rooms = await getAllRooms()
-    roomNames = [room.name for room in  rooms]
-    
-    return Response(status_code=OK, headers={}, description=json.dumps(roomNames))
-
-
-
-def videotokenFrom(identity, roomName):
     token = api.AccessToken(
         api_key=LK_API_KEY, api_secret=LK_API_SECRET
     )  # 1 hour validity
@@ -255,29 +230,41 @@ def videotokenFrom(identity, roomName):
     token.with_grants(
         api.VideoGrants(
             room_join=True,
-            room=roomName,
+            room="my-room",
         )
     )
 
     videotoken = token.to_jwt()
-    return videotoken
+
+    print(videotoken)
+
+    return Response(status_code=OK, headers={}, description=videotoken)
+
+
+# NETWORKIP = "10.0.2.65"
+NETWORKIP = "100.80.52.9"
+
 
 async def createRoom(roomName):
-    rooms = (
-        await lkapi.room.list_rooms(api.ListRoomsRequest(names=[roomName]))
-    ).rooms
-    if len(rooms) > 0:
-        return
-    room_info = await lkapi.room.create_room(
-        api.CreateRoomRequest(name=roomName, empty_timeout=5),
-    )
+    try:
+        LK_API_KEY = "api_key"
+        LK_API_SECRET = "api_secret"
+        # LIVEKITURL = "https://l6mmsls1-7880.euw.devtunnels.ms/"
+        LIVEKITURL = f"http://{NETWORKIP}:7880"
+        lkapi = api.LiveKitAPI(LIVEKITURL, LK_API_KEY, LK_API_SECRET)
+        rooms = (
+            await lkapi.room.list_rooms(api.ListRoomsRequest(names=[roomName]))
+        ).rooms
+        if len(rooms) > 0:
+            return
 
-
-async def getAllRooms():
-    rooms = ( await lkapi.room.list_rooms(api.ListRoomsRequest())).rooms
-    return rooms
+        room_info = await lkapi.room.create_room(
+            api.CreateRoomRequest(name=roomName),
+        )
+        print(room_info)
+    finally:
+        await lkapi.aclose()
 
 
 if __name__ == "__main__":
     app.start(host="0.0.0.0", port=8080)
-

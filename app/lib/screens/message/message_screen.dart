@@ -18,11 +18,13 @@ class _MessageScreenState extends State<MessageScreen> {
     if (text.isEmpty) return;
 
     setState(() {
-      messages.add(_ChatMessage(
-        text: text,
-        timestamp: DateTime.now(),
-        isSentByMe: true,
-      ));
+      messages.add(
+        _ChatMessage(
+          text: text,
+          timestamp: DateTime.now(),
+          isSentByMe: true,
+        ),
+      );
       _controller.clear();
     });
 
@@ -55,13 +57,17 @@ class _MessageScreenState extends State<MessageScreen> {
           Expanded(
             child: messages.isEmpty
                 ? const Center(
-                    child: Text('No messages yet',
-                        style: TextStyle(color: Colors.grey)),
+                    child: Text(
+                      'No messages yet',
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   )
                 : ListView.builder(
                     controller: _scrollController,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 20),
+                      horizontal: 16,
+                      vertical: 20,
+                    ),
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
                       final msg = messages[index];
@@ -148,13 +154,12 @@ class _MessageScreenState extends State<MessageScreen> {
 }
 
 class _ChatMessage {
-  final String text;
-  final DateTime timestamp;
-  final bool isSentByMe;
-
   _ChatMessage({
     required this.text,
     required this.timestamp,
     required this.isSentByMe,
   });
+  final String text;
+  final DateTime timestamp;
+  final bool isSentByMe;
 }

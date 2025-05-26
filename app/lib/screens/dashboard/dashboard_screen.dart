@@ -17,6 +17,14 @@ class DashboardScreen extends StatelessWidget {
           'Dashboard',
           style: TextStyle(fontSize: 20),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              LoginRoute().push<void>(context);
+            },
+            icon: const Icon(Icons.logout_rounded),
+          ),
+        ],
       ),
       body: showVisits(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -24,7 +32,7 @@ class DashboardScreen extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
         child: FilledButton(
           onPressed: () {
-            CallRoute().push<void>(context);
+            const CallRoute().push<void>(context);
           },
           style: ButtonStyle(
             textStyle: WidgetStatePropertyAll(

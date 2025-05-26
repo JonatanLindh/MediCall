@@ -3,6 +3,8 @@ part of 'login_bloc.dart';
 @immutable
 sealed class LoginEvent {}
 
+final class ToggleIsDoctor extends LoginEvent {}
+
 final class LoginButtonPressed extends LoginEvent {
   LoginButtonPressed({required this.email, required this.password});
 

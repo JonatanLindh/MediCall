@@ -10,31 +10,46 @@ part 'login_event.dart';
 part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
-  LoginBloc() : super(LoginInitial()) {
+  LoginBloc() : super(const LoginInitial(isDoctor: false)) {
     on<LoginButtonPressed>((event, emit) async {
-      emit(LoginLoading());
+      emit(LoginLoading(isDoctor: state.isDoctor));
 
       try {
         final response = await http.post(
-          Uri.parse('$apiUrl/patients/login'),
+          Uri.parse('$apiUrl/${ep()}/login'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'email': event.email, 'password': event.password}),
         );
         if (response.statusCode == 200) {
-          emit(LoginSuccess());
+          final data = jsonDecode(response.body);
+          log('Login successful: $data');
+          final id = data['id'] as String;
+
+          emit(LoginSuccess(isDoctor: state.isDoctor, id: id));
         } else {
-          emit(LoginFailure('Invalid email or password'));
+          emit(
+            LoginFailure(
+              'Invalid email or password',
+              isDoctor: state.isDoctor,
+            ),
+          );
         }
       } catch (e) {
-        emit(LoginFailure('Error: $e'));
+        emit(LoginFailure('Error: $e', isDoctor: state.isDoctor));
       }
     });
 
     on<RegisterEvent>((event, emit) async {
-      emit(LoginLoading());
+      emit(LoginLoading(isDoctor: state.isDoctor));
       await registerUser(event, emit);
     });
+
+    on<ToggleIsDoctor>((event, emit) {
+      emit(LoginInitial(isDoctor: !state.isDoctor));
+    });
   }
+
+  String ep() => state.isDoctor ? 'doctors' : 'patients';
 
   Future<void> registerUser(
     RegisterEvent event,
@@ -42,7 +57,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   ) async {
     try {
       final response = await http.post(
-        Uri.parse('$apiUrl/patients/register'),
+        Uri.parse('$apiUrl/${ep()}/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'firstName': event.firstName,
@@ -56,12 +71,22 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       log('Response body: ${response.body}');
 
       if (response.statusCode == 201) {
-        emit(LoginSuccess());
+        final data = jsonDecode(response.body);
+        log('Registration successful: $data');
+        final id = data['id'] as String;
+        emit(LoginSuccess(isDoctor: state.isDoctor, id: id));
       } else {
-        emit(LoginFailure('Registration failed'));
+        emit(LoginFailure('Registration failed', isDoctor: state.isDoctor));
       }
     } catch (e) {
-      emit(LoginFailure('Error: $e'));
+      emit(LoginFailure('Error: $e', isDoctor: state.isDoctor));
     }
+  }
+
+  String getDoctorId() {
+    if (state is LoginSuccess && state.isDoctor) {
+      return (state as LoginSuccess).id;
+    }
+    throw Exception('Doctor ID not available');
   }
 }

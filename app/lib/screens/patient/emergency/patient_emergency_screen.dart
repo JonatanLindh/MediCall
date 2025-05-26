@@ -46,7 +46,7 @@ class FloatingActionButtons extends StatelessWidget {
         spacing: 10,
         children: [
           FilledButton(
-            onPressed: () => CallRoute().push<void>(context),
+            onPressed: () => const CallRoute().push<void>(context),
             style: FilledButton.styleFrom(
               backgroundColor: c.secondary,
               padding: const EdgeInsets.all(15),
@@ -60,26 +60,7 @@ class FloatingActionButtons extends StatelessWidget {
           FilledButton(
             onPressed: () {
               // Implement message functionality
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Message functionality not implemented :(',
-                  ),
-                  // width: 400,
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(20),
-                    ),
-                  ),
-                  margin: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 10,
-                  ),
-                  showCloseIcon: true,
-                  elevation: 2,
-                ),
-              );
+              MessageRoute().push<void>(context);
             },
             style: FilledButton.styleFrom(
               backgroundColor: c.tertiary,

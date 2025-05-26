@@ -129,7 +129,7 @@ class DoctorProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: appTheme.indigo50,
+      // backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text('Profile'),
         centerTitle: true,
@@ -213,12 +213,16 @@ class DoctorProfileScreen extends StatelessWidget {
           const _ProfileItem(icon: Icons.language, text: 'English'),
           const Divider(height: 2),
           const _ProfileItem(
-              icon: Icons.notifications_none, text: 'Notification Setting'),
+            icon: Icons.notifications_none,
+            text: 'Notification Setting',
+          ),
           const Divider(height: 2),
           GestureDetector(
             onTap: () => context.push('/change-password'),
             child: const _ProfileItem(
-                icon: Icons.lock_outline, text: 'Change Password'),
+              icon: Icons.lock_outline,
+              text: 'Change Password',
+            ),
           ),
         ],
       ),
@@ -234,7 +238,7 @@ class DoctorProfileScreen extends StatelessWidget {
           minimumSize: const Size.fromHeight(48),
           backgroundColor: const Color(0xFF9AEF99),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30), 
+            borderRadius: BorderRadius.circular(30),
           ),
           elevation: 4,
         ),

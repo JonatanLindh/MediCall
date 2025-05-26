@@ -53,7 +53,6 @@ class DoctorNotificationsScreen extends StatelessWidget {
           const Expanded(child: IncomingCallsWidget()),
         ],
       ),
-      backgroundColor: Colors.grey[100],
     );
   }
 }
@@ -68,10 +67,12 @@ class IncomingCallsWidget extends StatelessWidget {
           IncomingCallsCubit(CallRepository())..getAllIncomingCalls(),
       child: BlocBuilder<IncomingCallsCubit, IncomingCallsState>(
         builder: (context, state) {
-          if (state is IncomingCallsInitial || state is IncomingCallsLoading) {
+          if (state is IncomingCallsLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (state is! IncomingCallsLoaded || state.incomingCalls.isEmpty) {
+          if (state is IncomingCallsInitial ||
+              state is! IncomingCallsLoaded ||
+              state.incomingCalls.isEmpty) {
             return const Text('No incoming calls');
           }
           final calls = state.incomingCalls;
