@@ -28,7 +28,7 @@ class DoctorHomeScreenContent extends StatelessWidget {
     final state = context.watch<DoctorReportsCubit>().state;
     final assignedTasks = state.reports
         .where(
-          (r) => r.assignedDoctorId == doctorName && !r.completed,
+          (r) => r.doctorName == doctorName && !r.completed,
         )
         .toList();
 
@@ -65,8 +65,6 @@ class DoctorHomeScreenContent extends StatelessWidget {
             const SizedBox(height: 30),
             Center(
               child: AssignedTaskStatusButton(
-                currentDoctorId:
-                    'Dr. Johan Nilsson', // Replace with actual doctor ID
                 onStatusChanged: (reportId, status) {
                   final cubit = context.read<DoctorReportsCubit>();
                   print('$reportId \n $status'); // Handle status change

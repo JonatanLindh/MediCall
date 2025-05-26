@@ -16,8 +16,6 @@ model Doctor {
   email         String @unique
   password_hash Bytes
 
-  status String?
-
   latitude  Float?
   longitude Float?
   Report    Report[]
@@ -37,12 +35,13 @@ model Report {
   id String @id @default(cuid())
 
   patientId String
-  doctorId  String
+  doctorId  String?
 
   description String
   status      String
   completed   Boolean @default(false)
+  time        String  @default("00:00")
 
   patient Patient @relation(fields: [patientId], references: [id])
-  doctor  Doctor  @relation(fields: [doctorId], references: [id])
+  doctor  Doctor? @relation(fields: [doctorId], references: [id])
 }

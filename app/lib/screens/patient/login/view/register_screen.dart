@@ -36,7 +36,11 @@ class RegisterScreen extends HookWidget {
     return BlocListener<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state is LoginSuccess) {
-          PatientDashboardRoute().go(context);
+          if (state.isDoctor) {
+            DoctorHomeRoute().go(context);
+          } else {
+            PatientDashboardRoute().go(context);
+          }
         } else if (state is LoginFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
@@ -109,7 +113,10 @@ class RegisterScreen extends HookWidget {
                       child: Text(
                         'Forgot password?',
                         style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary),
+                          color: (context.watch<LoginBloc>().state.isDoctor
+                              ? Theme.of(context).colorScheme.onSecondary
+                              : Theme.of(context).colorScheme.primary),
+                        ),
                       ),
                     ),
                   ),
@@ -117,8 +124,12 @@ class RegisterScreen extends HookWidget {
                   BlocBuilder<LoginBloc, LoginState>(
                     builder: (context, state) {
                       if (state is LoginLoading) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: (context.watch<LoginBloc>().state.isDoctor
+                                ? Theme.of(context).colorScheme.onSecondary
+                                : Theme.of(context).colorScheme.primary),
+                          ),
                         );
                       } else {
                         return SubmitButton(onSubmit: submit);
@@ -144,7 +155,9 @@ class SubmitButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: () => onSubmit(context),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: (context.watch<LoginBloc>().state.isDoctor
+            ? Theme.of(context).colorScheme.onSecondary
+            : Theme.of(context).colorScheme.primary),
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(
           horizontal: 80,

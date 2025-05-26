@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medicall/screens/doctor/reports/cubit/doctor_reports_cubit.dart';
+import 'package:medicall/screens/patient/login/bloc/login_bloc.dart';
 
 class DoctorReportsScreen extends HookWidget {
   const DoctorReportsScreen({super.key});
@@ -15,6 +16,9 @@ class DoctorReportsScreen extends HookWidget {
   Widget build(BuildContext context) {
     final searchController = useTextEditingController();
     final cubit = context.read<DoctorReportsCubit>();
+
+    final doctorId = context.read<LoginBloc>().getDoctorId();
+
     ReportStatus selectedStatus;
     useEffect(
       () {
@@ -36,49 +40,8 @@ class DoctorReportsScreen extends HookWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              showModalBottomSheet<void>(
-                context: context,
-                builder: (context) =>
-                    BlocBuilder<DoctorReportsCubit, DoctorReportsState>(
-                  builder: (context, state) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          title: Text('Unassigned (${state.unassignedCount})'),
-                          onTap: () {
-                            filter(context, ReportStatus.unassigned);
-                            context.pop();
-                          },
-                        ),
-                        ListTile(
-                          title: Text('Assigned (${state.assignedCount})'),
-                          onTap: () {
-                            filter(context, ReportStatus.assigned);
-                            context.pop();
-                          },
-                        ),
-                        ListTile(
-                          title: Text('Completed (${state.completedCount})'),
-                          onTap: () {
-                            filter(context, ReportStatus.completed);
-                            context.pop();
-                          },
-                        ),
-                        ListTile(
-                          title: Text('All (${state.allCount})'),
-                          onTap: () {
-                            filter(context, ReportStatus.all);
-                            context.pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              );
-            },
+            onPressed: () =>
+                context.read<DoctorReportsCubit>().setMockReports(),
           ),
         ],
       ),
@@ -132,11 +95,9 @@ class DoctorReportsScreen extends HookWidget {
                   itemCount: state.filteredReports.length,
                   itemBuilder: (context, index) {
                     final report = state.filteredReports[index];
-                    final isAssigned = report.assignedDoctorId != null;
-                    const currentDoctorId =
-                        'Dr. Johan Nilsson'; // assigned doctor id, need to be replaced with the current doctor's id!!
-                    final isAssignedToMe = report.assignedDoctorId ==
-                        currentDoctorId; // replace with the current doctor's id
+                    final isAssigned = report.doctorName != null;
+                    print('r: ${report.doctorId} d: $doctorId');
+                    final isAssignedToMe = report.doctorId == doctorId;
                     return ListTile(
                       leading: CircleAvatar(
                         radius: 24,
@@ -176,7 +137,7 @@ class DoctorReportsScreen extends HookWidget {
                               if (report.completed)
                                 // If the report is assigned to me and completed, show Doctor's name
                                 Text(
-                                  '${report.assignedDoctorId}',
+                                  '${report.doctorName}',
                                   style: const TextStyle(
                                     fontSize: 14,
                                   ),
@@ -208,7 +169,7 @@ class DoctorReportsScreen extends HookWidget {
                             else
                               // If the report is assigned to another doctor, show the assigned doctor's name
                               Text(
-                                '${report.assignedDoctorId}',
+                                '${report.doctorName}',
                                 style: const TextStyle(
                                   fontSize: 14,
                                 ),
@@ -220,12 +181,12 @@ class DoctorReportsScreen extends HookWidget {
                                     .read<DoctorReportsCubit>()
                                     .assignToDoctor(
                                       id: report.id,
-                                      doctorId: currentDoctorId,
+                                      doctorId: doctorId,
                                     );
                               },
                               style: TextButton.styleFrom(
                                 padding: EdgeInsets.zero,
-                                minimumSize: const Size(0, 0),
+                                minimumSize: Size.zero,
                                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
                               child: const Text(

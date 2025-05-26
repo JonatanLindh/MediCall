@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:medicall/screens/doctor/reports/cubit/doctor_reports_cubit.dart';
 import 'package:medicall/screens/doctor/reports/data/report.dart';
+import 'package:medicall/screens/patient/login/bloc/login_bloc.dart';
 
 class AssignedTaskStatusButton extends StatefulWidget {
   const AssignedTaskStatusButton({
-    required this.currentDoctorId,
     super.key,
     this.onStatusChanged,
   });
-  final String currentDoctorId;
   final void Function(String reportId, TaskStatusStep status)? onStatusChanged;
 
   @override
@@ -25,10 +24,11 @@ class _AssignedTaskStatusButtonState extends State<AssignedTaskStatusButton> {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<DoctorReportsCubit>().state;
+    final doctorId = context.read<LoginBloc>().getDoctorId();
 
     final assignedTasks = state.reports
         .where(
-          (r) => r.assignedDoctorId == widget.currentDoctorId && !r.completed,
+          (r) => r.doctorId == doctorId && !r.completed,
         )
         .toList();
 

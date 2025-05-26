@@ -9,7 +9,7 @@ from prisma import Base64, Prisma
 from prisma.models import Doctor, Patient, Report
 from prisma.bases import BaseDoctor
 from prisma.types import ReportUpdateInput
-from robyn import Response, Robyn, WebSocket
+from robyn import Response, Robyn, WebSocket, jsonify
 from robyn.types import Body
 
 app = Robyn(__file__)
@@ -17,9 +17,10 @@ websocket = WebSocket(app, "/ws")
 prisma = Prisma(auto_register=True)
 global lkapi
 
+
 @app.startup_handler
 async def startup_handler() -> None:
-    global lkapi 
+    global lkapi
     lkapi = api.LiveKitAPI(LIVEKITURL, LK_API_KEY, LK_API_SECRET)
     await prisma.connect()
 
@@ -28,7 +29,7 @@ async def startup_handler() -> None:
 async def shutdown_handler() -> None:
     if prisma.is_connected():
         await prisma.disconnect()
-    await lkapi.aclose()  
+    await lkapi.aclose()
 
 
 class RegisterBody(Body):
@@ -38,7 +39,7 @@ class RegisterBody(Body):
     password: str
 
 
-@app.post("/api/doctors")
+@app.post("/api/doctors/register")
 async def register_doctor(request, body: RegisterBody):
     data = request.json()
 
@@ -49,13 +50,23 @@ async def register_doctor(request, body: RegisterBody):
 
     pass_hash = hashpw(password.encode("utf-8"), gensalt())
 
-    await Doctor.prisma().create(
+    doctor = await Doctor.prisma().create(
         data={
             "firstName": first_name,
             "lastName": last_name,
             "email": email,
             "password_hash": Base64.encode(pass_hash),
         },
+    )
+
+    return Response(
+        status_code=201,
+        headers={},
+        description=jsonify(
+            {
+                "id": doctor.id,
+            },
+        ),
     )
 
 
@@ -82,7 +93,7 @@ async def register_patient(request, body: RegisterBody):
 
     pass_hash = hashpw(password.encode("utf-8"), gensalt())
 
-    await Patient.prisma().create(
+    patient = await Patient.prisma().create(
         data={
             "firstName": first_name,
             "lastName": last_name,
@@ -94,7 +105,20 @@ async def register_patient(request, body: RegisterBody):
     return Response(
         status_code=201,
         headers={},
-        description="Patient registered successfully",
+        description=jsonify(
+            {
+                "id": patient.id,
+            },
+        ),
+    )
+
+
+@app.get("/api/patients")
+async def get_patients(request):
+    patients = await Patient.prisma().find_many()
+    return json.dumps(
+        [patient.model_dump_json(exclude={"password_hash"}) for patient in patients],
+        indent=2,
     )
 
 
@@ -143,75 +167,45 @@ class UpdateDoctorStatusBody(Body):
     status: str
 
 
-# TODO add auth
-@app.patch("/api/doctors/:id/status")
-async def update_doctor_status(request, body: UpdateDoctorStatusBody):
-    id = request.path_params["id"]
-    data = request.json()
-    status = data["status"]
-
-    print(f"Updating doctor {id} status to {status}")
-
-    await Doctor.prisma().update(
-        where={"id": id},
-        data={
-            "status": status,
-        },
-    )
-
-
-@app.get("/api/doctors/:id/status")
-async def get_doctor_status(request):
-    id = request.path_params["id"]
-    doctor = await Doctor.prisma().find_unique(
-        where={"id": id},
-    )
-    if doctor:
-        return json.dumps(
-            {
-                "status": doctor.status,
-            },
-            indent=2,
-        )
-    else:
-        return Response(status_code=404, description="Doctor not found", headers={})
-
-
 # REPORT
 class ReportBody(Body):
     patientId: str
-    doctorId: str
     description: str
-    status: str
+    time: str
 
 
 @app.post("/api/reports")
 async def create_report(request, body: ReportBody):
     data = request.json()
     patient_id = data["patientId"]
-    doctor_id = data["doctorId"]
     description = data["description"]
-    status = data["status"]
+    time = data["time"]
 
-    await Report.prisma().create(
+    report = await Report.prisma().create(
         data={
             "patientId": patient_id,
-            "doctorId": doctor_id,
             "description": description,
-            "status": status,
+            "time": time,
+            "status": "unassigned",
         },
     )
 
     return Response(
         status_code=201,
         headers={},
-        description="Report created successfully",
+        description=jsonify(
+            {
+                "id": report.id,
+            }
+        ),
     )
 
 
 class UpdateReportBody(Body):
     status: Optional[str]
     completed: Optional[bool]
+    unassign: Optional[bool]
+    assignToDoctorId: Optional[str]  # doctorId
 
 
 @app.patch("/api/reports/:id")
@@ -220,16 +214,27 @@ async def update_report(request, body: UpdateReportBody):
     data = request.json()
     status = data.get("status")
     completed = data.get("completed")
+    unassign = data.get("unassign")
+    doctor_id = data.get("assignToDoctorId")
+    print(doctor_id)
 
     update_data: ReportUpdateInput = {}
     if status is not None:
         update_data["status"] = status
-    if completed is not None:
-        update_data["completed"] = completed
+    if completed is not None or completed != "null":
+        update_data["completed"] = bool(completed)
+    if doctor_id is not None:
+        update_data["doctor"] = {"connect": {"id": doctor_id}}
+        update_data["status"] = "assigned"
+    if unassign is not None and unassign != "null" and unassign:
+        update_data["doctor"] = {"disconnect": True}
+        update_data["status"] = "unassigned"
 
     await Report.prisma().update(
         where={"id": id},
-        data=update_data,
+        data={
+            **update_data,
+        },
     )
 
     return Response(
@@ -239,14 +244,48 @@ async def update_report(request, body: UpdateReportBody):
     )
 
 
+@app.delete("/api/reports")
+async def delete_all_reports(request):
+    await Report.prisma().delete_many(where={})
+    return Response(
+        status_code=200,
+        headers={},
+        description="All reports deleted successfully",
+    )
+
+
+@app.get("/api/reports")
+async def get_reports(request):
+    reports = await Report.prisma().find_many(include={"patient": True, "doctor": True})
+
+    return json.dumps(
+        [
+            report.model_dump_json(
+                exclude={
+                    "patient": {"email", "password_hash"},
+                    "doctor": {"email", "password_hash"},
+                }
+            )
+            for report in reports
+        ],
+        indent=2,
+    )
+
+
 @app.get("/api/reports/:id")
 async def get_report(request):
     id = request.path_params["id"]
     report = await Report.prisma().find_unique(
-        where={"id": id},
+        where={"id": id}, include={"patient": True, "doctor": True}
     )
+
     if report:
-        return json.dumps(report, indent=2)
+        return report.model_dump_json(
+            exclude={
+                "patient": {"email", "password_hash"},
+                "doctor": {"email", "password_hash"},
+            }
+        )
     else:
         return Response(status_code=404, description="Report not found", headers={})
 
@@ -270,7 +309,43 @@ async def login(request, body: LoginBody):
         password.encode("utf-8"), Base64.decode(user.password_hash)
     ):
         print(f"User {user.id} logged in")
-        return Response(status_code=OK, headers={}, description="OK")
+        return Response(
+            status_code=OK,
+            headers={},
+            description=jsonify(
+                {
+                    "id": user.id,
+                },
+            ),
+        )
+
+    print("Invalid credentials")
+    return Response(status_code=UNAUTHORIZED, headers={}, description="Unauthorized")
+
+
+@app.post("/api/doctors/login")
+async def doctor_login(request, body: LoginBody):
+    data = request.json()
+    email = data.get("email")
+    password = data.get("password")
+
+    user = await Doctor.prisma().find_first(
+        where={"email": email},
+    )
+
+    if user and bcrypt.checkpw(
+        password.encode("utf-8"), Base64.decode(user.password_hash)
+    ):
+        print(f"Doctor {user.id} logged in")
+        return Response(
+            status_code=OK,
+            headers={},
+            description=jsonify(
+                {
+                    "id": user.id,
+                }
+            ),
+        )
 
     print("Invalid credentials")
     return Response(status_code=UNAUTHORIZED, headers={}, description="Unauthorized")
@@ -283,6 +358,7 @@ LK_API_SECRET = "api_secret"
 # LIVEKITURL = "https://l6mmsls1-7880.euw.devtunnels.ms/"
 LIVEKITURL = f"http://{NETWORKIP}:7880"
 
+
 @app.get("/api/getvideotoken")
 async def get_videotoken(request):
     identity = str(random.randint(1000, 9999))
@@ -291,7 +367,7 @@ async def get_videotoken(request):
     roomName = identity
     await createRoom(roomName)
 
-    videotoken = videotokenFrom(identity,roomName)
+    videotoken = videotokenFrom(identity, roomName)
 
     print(videotoken)
 
@@ -304,9 +380,9 @@ async def get_videotoken_with_roomname(request):
     identity = str(random.randint(1000, 9999))
     print(identity)
 
-    roomName =  request.path_params["roomName"]
+    roomName = request.path_params["roomName"]
 
-    videotoken = videotokenFrom(identity,roomName)
+    videotoken = videotokenFrom(identity, roomName)
 
     print(videotoken)
 
@@ -316,10 +392,9 @@ async def get_videotoken_with_roomname(request):
 @app.get("/api/getallrooms")
 async def get_all_rooms(request):
     rooms = await getAllRooms()
-    roomNames = [room.name for room in  rooms]
-    
-    return Response(status_code=OK, headers={}, description=json.dumps(roomNames))
+    roomNames = [room.name for room in rooms]
 
+    return Response(status_code=OK, headers={}, description=json.dumps(roomNames))
 
 
 def videotokenFrom(identity, roomName):
@@ -338,10 +413,9 @@ def videotokenFrom(identity, roomName):
     videotoken = token.to_jwt()
     return videotoken
 
+
 async def createRoom(roomName):
-    rooms = (
-        await lkapi.room.list_rooms(api.ListRoomsRequest(names=[roomName]))
-    ).rooms
+    rooms = (await lkapi.room.list_rooms(api.ListRoomsRequest(names=[roomName]))).rooms
     if len(rooms) > 0:
         return
     room_info = await lkapi.room.create_room(
@@ -350,10 +424,9 @@ async def createRoom(roomName):
 
 
 async def getAllRooms():
-    rooms = ( await lkapi.room.list_rooms(api.ListRoomsRequest())).rooms
+    rooms = (await lkapi.room.list_rooms(api.ListRoomsRequest())).rooms
     return rooms
 
 
 if __name__ == "__main__":
     app.start(host="0.0.0.0", port=8080)
-

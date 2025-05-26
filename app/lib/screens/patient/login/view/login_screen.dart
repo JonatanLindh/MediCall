@@ -32,7 +32,11 @@ class _LoginScreenState extends State<LoginScreen> {
     return BlocListener<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state is LoginSuccess) {
-          PatientDashboardRoute().go(context);
+          if (state.isDoctor) {
+            DoctorHomeRoute().go(context);
+          } else {
+            PatientDashboardRoute().go(context);
+          }
         } else if (state is LoginFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
@@ -99,7 +103,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Text(
                         'Forgot password?',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
+                          color: (context.watch<LoginBloc>().state.isDoctor
+                              ? Theme.of(context).colorScheme.onSecondary
+                              : Theme.of(context).colorScheme.primary),
                         ),
                       ),
                     ),
@@ -108,8 +114,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   BlocBuilder<LoginBloc, LoginState>(
                     builder: (context, state) {
                       if (state is LoginLoading) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: (context.watch<LoginBloc>().state.isDoctor
+                                ? Theme.of(context).colorScheme.onSecondary
+                                : Theme.of(context).colorScheme.primary),
+                          ),
                         );
                       } else {
                         return SubmitButton(onSubmit: _submit);
@@ -154,7 +164,10 @@ class InputField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
-        fillColor: Theme.of(context).colorScheme.primary.withAlpha(0x2F),
+        fillColor: (context.watch<LoginBloc>().state.isDoctor
+                ? Theme.of(context).colorScheme.onSecondary
+                : Theme.of(context).colorScheme.primary)
+            .withAlpha(0x2F),
         filled: true,
         hintText: hintText,
         prefixIcon: prefixIcon,
@@ -181,7 +194,9 @@ class SubmitButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: () => onSubmit(context),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: (context.watch<LoginBloc>().state.isDoctor
+            ? Theme.of(context).colorScheme.onSecondary
+            : Theme.of(context).colorScheme.primary),
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         padding: const EdgeInsets.symmetric(
           horizontal: 80,
@@ -191,7 +206,11 @@ class SubmitButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(30),
         ),
       ),
-      child: const Text('Sign In as patient'),
+      child: BlocBuilder<LoginBloc, LoginState>(
+        builder: (context, state) {
+          return Text('Sign In as ${state.isDoctor ? 'Doctor' : 'Patient'}');
+        },
+      ),
     );
   }
 }
@@ -203,13 +222,24 @@ class LoginAsDoctorButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: () {
-        DoctorHomeRoute().go(context);
+        context.read<LoginBloc>().add(
+              ToggleIsDoctor(),
+            );
       },
-      child: Text(
-        'Log in as Doctor',
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onSecondary,
-        ),
+      style: TextButton.styleFrom(
+        splashFactory: NoSplash.splashFactory,
+      ),
+      child: BlocBuilder<LoginBloc, LoginState>(
+        builder: (context, state) {
+          return Text(
+            'Log in as ${state.isDoctor ? 'Patient' : 'Doctor'}',
+            style: TextStyle(
+              color: (context.watch<LoginBloc>().state.isDoctor
+                  ? Theme.of(context).colorScheme.onSecondary
+                  : Theme.of(context).colorScheme.primary),
+            ),
+          );
+        },
       ),
     );
   }
@@ -223,7 +253,10 @@ class SignUpButton extends StatelessWidget {
     return FilledButton(
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.all(
-          Theme.of(context).colorScheme.primary.withAlpha(0x2F),
+          (context.watch<LoginBloc>().state.isDoctor
+                  ? Theme.of(context).colorScheme.onSecondary
+                  : Theme.of(context).colorScheme.primary)
+              .withAlpha(0x2F),
         ),
       ),
       onPressed: () {

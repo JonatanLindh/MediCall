@@ -5,24 +5,21 @@ enum ReportStatus { unassigned, assigned, completed, all }
 
 class DoctorReportsState {
   DoctorReportsState(this.reports, this.statusFilter, this.searchText)
-      : unassignedCount =
-            reports.where((r) => r.assignedDoctorId == null).length,
-        assignedCount = reports
-            .where((r) => r.assignedDoctorId != null && !r.completed)
-            .length,
-        completedCount = reports
-            .where((r) => r.assignedDoctorId != null && r.completed)
-            .length,
+      : unassignedCount = reports.where((r) => r.doctorName == null).length,
+        assignedCount =
+            reports.where((r) => r.doctorName != null && !r.completed).length,
+        completedCount =
+            reports.where((r) => r.doctorName != null && r.completed).length,
         allCount = reports.length,
         filteredReports = reports.where((report) {
           final matchStatus = statusFilter == ReportStatus.all ||
               (statusFilter == ReportStatus.unassigned &&
-                  report.assignedDoctorId == null) ||
+                  report.doctorName == null) ||
               (statusFilter == ReportStatus.assigned &&
-                  report.assignedDoctorId != null &&
+                  report.doctorName != null &&
                   !report.completed) ||
               (statusFilter == ReportStatus.completed &&
-                  report.assignedDoctorId != null &&
+                  report.doctorName != null &&
                   report.completed);
 
           final matchSearch = '${report.name} ${report.description}'
@@ -57,5 +54,5 @@ class DoctorReportsState {
 }
 
 final class DoctorReportsInitial extends DoctorReportsState {
-  DoctorReportsInitial() : super(fakeReports, ReportStatus.assigned, '');
+  DoctorReportsInitial() : super([], ReportStatus.assigned, '');
 }
